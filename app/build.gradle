@@ -5,7 +5,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "jp.kshoji.blemidi.sample"
+        applicationId "org.nosemaj.pixphony"
         minSdkVersion 18
         versionCode 3
         versionName "1.2"

@@ -1,4 +1,4 @@
-package jp.kshoji.blemidi.sample;
+package org.nosemaj.pixphony;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,9 +37,10 @@ import jp.kshoji.blemidi.listener.OnMidiDeviceAttachedListener;
 import jp.kshoji.blemidi.listener.OnMidiDeviceDetachedListener;
 import jp.kshoji.blemidi.listener.OnMidiInputEventListener;
 import jp.kshoji.blemidi.listener.OnMidiScanStatusListener;
-import jp.kshoji.blemidi.sample.util.SoundMaker;
-import jp.kshoji.blemidi.sample.util.Tone;
 import jp.kshoji.blemidi.util.BleUtils;
+
+import org.nosemaj.pixphony.util.SoundMaker;
+import org.nosemaj.pixphony.util.Tone;
 
 /**
  * Activity for BLE MIDI Central Application

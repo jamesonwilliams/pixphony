@@ -1,4 +1,4 @@
-package jp.kshoji.blemidi.sample.util;
+package org.nosemaj.pixphony.util;
 
 /**
  * Holder for tone information

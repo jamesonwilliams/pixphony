@@ -1,4 +1,4 @@
-package jp.kshoji.blemidi.sample;
+package org.nosemaj.pixphony;
  
 import android.app.Activity;
 import android.content.Intent;
