@@ -5,4 +5,4 @@ adb uninstall jp.kshoji.blemidi.sample &
 wait
 
 adb install -r -d sample/build/outputs/apk/sample-debug.apk
-adb shell am start -n jp.kshoji.blemidi.sample/.CentralActivity 
+adb shell am start -n jp.kshoji.blemidi.sample/.SplashActivity 
