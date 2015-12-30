@@ -17,8 +17,10 @@
 package org.nosemaj.pixphony;
 
 public class Pixmob {
-    public static final int MSG_LOG_EVENT = 0;
-    public static final int MSG_PLAY_NOTE = 1;
+    public static final int MSG_LOG_EVENT       = 0;
+    public static final int MSG_PLAY_NOTE       = 1;
+    public static final int MSG_DEVICE_ATTACHED = 2;
+    public static final int MSG_DEVICE_DETACHED = 3;
 
     public static final int LOWEST_MIDI_NOTE = 55;
 }

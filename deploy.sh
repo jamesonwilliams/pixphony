@@ -20,4 +20,7 @@ adb uninstall org.nosemaj.pixphony &
 wait
 
 adb install -r -d app/build/outputs/apk/app-debug.apk
+adb logcat -c 
 adb shell am start -n org.nosemaj.pixphony/.SplashActivity 
+adb logcat | grep 'org.nosemaj.pixphony'
+
