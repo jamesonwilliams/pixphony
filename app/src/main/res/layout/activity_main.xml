@@ -41,28 +41,6 @@
                 android:layout_height="wrap_content"
                 android:text="Disconnect" />
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1" >
-
-            <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="MIDI Thru(In to Out) :"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <ToggleButton
-                android:id="@+id/toggleButtonThru"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:textOff="Thru OFF"
-                android:textOn="Thru ON" />
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

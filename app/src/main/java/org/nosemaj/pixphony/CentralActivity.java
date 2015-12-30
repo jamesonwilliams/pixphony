@@ -17,7 +17,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -117,7 +116,6 @@ public class CentralActivity extends Activity {
 
     ArrayAdapter<String> midiInputEventAdapter;
     ArrayAdapter<String> midiOutputEventAdapter;
-    private ToggleButton thruToggleButton;
     Spinner deviceSpinner;
 
     ArrayAdapter<MidiOutputDevice> connectedOutputDevicesAdapter;
@@ -146,181 +144,91 @@ public class CentralActivity extends Activity {
         @Override
         public void onMidiSystemExclusive(@NonNull MidiInputDevice sender, @NonNull byte[] systemExclusive) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "SystemExclusive from: " + sender.getDeviceName() + ", data:" + Arrays.toString(systemExclusive)));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiSystemExclusive(systemExclusive);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "SystemExclusive from: " + sender.getDeviceName() + ", data:" + Arrays.toString(systemExclusive)));
-            }
         }
 
         @Override
         public void onMidiNoteOff(@NonNull MidiInputDevice sender, int channel, int note, int velocity) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "NoteOff from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", velocity: " + velocity));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiNoteOff(channel, note, velocity);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "NoteOff from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", velocity: " + velocity));
-            }
         }
 
         @Override
         public void onMidiNoteOn(@NonNull MidiInputDevice sender, int channel, int note, int velocity) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "NoteOn from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", velocity: " + velocity));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiNoteOn(channel, note, velocity);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "NoteOn from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", velocity: " + velocity));
-            }
         }
 
         @Override
         public void onMidiPolyphonicAftertouch(@NonNull MidiInputDevice sender, int channel, int note, int pressure) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "PolyphonicAftertouch  from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", pressure: " + pressure));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiPolyphonicAftertouch(channel, note, pressure);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "PolyphonicAftertouch from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", pressure: " + pressure));
-            }
         }
 
         @Override
         public void onMidiControlChange(@NonNull MidiInputDevice sender, int channel, int function, int value) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "ControlChange from: " + sender.getDeviceName() + ", channel: " + channel + ", function: " + function + ", value: " + value));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiControlChange(channel, function, value);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "ControlChange from: " + sender.getDeviceName() + ", channel: " + channel + ", function: " + function + ", value: " + value));
-            }
         }
 
         @Override
         public void onMidiProgramChange(@NonNull MidiInputDevice sender, int channel, int program) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "ProgramChange from: " + sender.getDeviceName() + ", channel: " + channel + ", program: " + program));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiProgramChange(channel, program);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "ProgramChange from: " + sender.getDeviceName() + ", channel: " + channel + ", program: " + program));
-            }
         }
 
         @Override
         public void onMidiChannelAftertouch(@NonNull MidiInputDevice sender, int channel, int pressure) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "ChannelAftertouch from: " + sender.getDeviceName() + ", channel: " + channel + ", pressure: " + pressure));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiChannelAftertouch(channel, pressure);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "ChannelAftertouch from: " + sender.getDeviceName() + ", channel: " + channel + ", pressure: " + pressure));
-            }
         }
 
         @Override
         public void onMidiPitchWheel(@NonNull MidiInputDevice sender, int channel, int amount) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "PitchWheel from: " + sender.getDeviceName() + ", channel: " + channel + ", amount: " + amount));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiPitchWheel(channel, amount);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "PitchWheel from: " + sender.getDeviceName() + ", channel: " + channel + ", amount: " + amount));
-            }
         }
 
         @Override
         public void onMidiTimeCodeQuarterFrame(@NonNull MidiInputDevice sender, int timing) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "TimeCodeQuarterFrame from: " + sender.getDeviceName() + ", timing: " + timing));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiTimeCodeQuarterFrame(timing);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "TimeCodeQuarterFrame from: " + sender.getDeviceName() + ", timing: " + timing));
-            }
         }
 
         @Override
         public void onMidiSongSelect(@NonNull MidiInputDevice sender, int song) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "SongSelect from: " + sender.getDeviceName() + ", song: " + song));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiSongSelect(song);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "SongSelect from: " + sender.getDeviceName() + ", song: " + song));
-            }
         }
 
         @Override
         public void onMidiSongPositionPointer(@NonNull MidiInputDevice sender, int position) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "SongPositionPointer from: " + sender.getDeviceName() + ", position: " + position));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiSongPositionPointer(position);
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "SongPositionPointer from: " + sender.getDeviceName() + ", position: " + position));
-            }
         }
 
         @Override
         public void onMidiTuneRequest(@NonNull MidiInputDevice sender) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "TuneRequest from: " + sender.getDeviceName()));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiTuneRequest();
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "TuneRequest from: " + sender.getDeviceName()));
-            }
         }
 
         @Override
         public void onMidiTimingClock(@NonNull MidiInputDevice sender) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "TimingClock from: " + sender.getDeviceName()));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiTimingClock();
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "TimingClock from: " + sender.getDeviceName()));
-            }
         }
 
         @Override
         public void onMidiStart(@NonNull MidiInputDevice sender) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "Start from: " + sender.getDeviceName()));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiStart();
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "Start from: " + sender.getDeviceName()));
-            }
         }
 
         @Override
         public void onMidiContinue(@NonNull MidiInputDevice sender) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "Continue from: " + sender.getDeviceName()));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiContinue();
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "Continue from: " + sender.getDeviceName()));
-            }
         }
 
         @Override
         public void onMidiStop(@NonNull MidiInputDevice sender) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "Stop from: " + sender.getDeviceName()));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiStop();
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "Stop from: " + sender.getDeviceName()));
-            }
         }
 
         @Override
         public void onMidiActiveSensing(@NonNull MidiInputDevice sender) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "ActiveSensing from: " + sender.getDeviceName()));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiActiveSensing();
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "ActiveSensing from: " + sender.getDeviceName()));
-            }
         }
 
         @Override
         public void onMidiReset(@NonNull MidiInputDevice sender) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "Reset from: " + sender.getDeviceName()));
-
-            if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
-                getBleMidiOutputDeviceFromSpinner().sendMidiReset();
-                midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "Reset from: " + sender.getDeviceName()));
-            }
         }
 
         @Override
@@ -347,8 +255,6 @@ public class CentralActivity extends Activity {
         ListView midiOutputEventListView = (ListView) findViewById(R.id.midiOutputEventListView);
         midiOutputEventAdapter = new ArrayAdapter<>(this, R.layout.midi_event, R.id.midiEventDescriptionTextView);
         midiOutputEventListView.setAdapter(midiOutputEventAdapter);
-
-        thruToggleButton = (ToggleButton) findViewById(R.id.toggleButtonThru);
 
         deviceSpinner = (Spinner) findViewById(R.id.deviceNameSpinner);
         connectedOutputDevicesAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_dropdown_item, android.R.id.text1, new ArrayList<MidiOutputDevice>());
