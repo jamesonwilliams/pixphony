@@ -35,7 +35,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Set;
 
 import jp.kshoji.blemidi.central.BleMidiCentralProvider;
@@ -43,7 +42,6 @@ import jp.kshoji.blemidi.device.MidiInputDevice;
 import jp.kshoji.blemidi.device.MidiOutputDevice;
 import jp.kshoji.blemidi.listener.OnMidiDeviceAttachedListener;
 import jp.kshoji.blemidi.listener.OnMidiDeviceDetachedListener;
-import jp.kshoji.blemidi.listener.OnMidiInputEventListener;
 import jp.kshoji.blemidi.listener.OnMidiScanStatusListener;
 import jp.kshoji.blemidi.util.BleUtils;
 
@@ -102,9 +100,19 @@ public class CentralActivity extends Activity {
     final Handler midiInputEventHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if (midiInputEventAdapter != null) {
-                midiInputEventAdapter.add((String)msg.obj);
+            if (midiInputEventAdapter == null) {
+                return false;
             }
+
+            switch (msg.what) {
+                case Pixmob.MSG_LOG_EVENT:
+                    midiInputEventAdapter.add((String)msg.obj);
+                    break;
+                case Pixmob.MSG_PLAY_NOTE:
+                    soundPlayer.playMidiNote((Integer)msg.obj);
+                    break;
+            }
+
             // message handled successfully
             return true;
         }
@@ -159,111 +167,7 @@ public class CentralActivity extends Activity {
         return null;
     }
 
-    OnMidiInputEventListener onMidiInputEventListener = new OnMidiInputEventListener() {
-        @Override
-        public void onMidiSystemExclusive(@NonNull MidiInputDevice sender, @NonNull byte[] systemExclusive) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "SystemExclusive from: " + sender.getDeviceName() + ", data:" + Arrays.toString(systemExclusive)));
-        }
-
-        @Override
-        public void onMidiNoteOff(@NonNull MidiInputDevice sender, int channel, int note, int velocity) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "NoteOff from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", velocity: " + velocity));
-
-            if (velocity > 0) {
-                soundPlayer.playMidiNote(note);
-            }
-        }
-
-        @Override
-        public void onMidiNoteOn(@NonNull MidiInputDevice sender, int channel, int note, int velocity) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "NoteOn from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", velocity: " + velocity));
-        }
-
-        @Override
-        public void onMidiPolyphonicAftertouch(@NonNull MidiInputDevice sender, int channel, int note, int pressure) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "PolyphonicAftertouch  from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", pressure: " + pressure));
-        }
-
-        @Override
-        public void onMidiControlChange(@NonNull MidiInputDevice sender, int channel, int function, int value) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "ControlChange from: " + sender.getDeviceName() + ", channel: " + channel + ", function: " + function + ", value: " + value));
-        }
-
-        @Override
-        public void onMidiProgramChange(@NonNull MidiInputDevice sender, int channel, int program) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "ProgramChange from: " + sender.getDeviceName() + ", channel: " + channel + ", program: " + program));
-        }
-
-        @Override
-        public void onMidiChannelAftertouch(@NonNull MidiInputDevice sender, int channel, int pressure) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "ChannelAftertouch from: " + sender.getDeviceName() + ", channel: " + channel + ", pressure: " + pressure));
-        }
-
-        @Override
-        public void onMidiPitchWheel(@NonNull MidiInputDevice sender, int channel, int amount) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "PitchWheel from: " + sender.getDeviceName() + ", channel: " + channel + ", amount: " + amount));
-        }
-
-        @Override
-        public void onMidiTimeCodeQuarterFrame(@NonNull MidiInputDevice sender, int timing) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "TimeCodeQuarterFrame from: " + sender.getDeviceName() + ", timing: " + timing));
-        }
-
-        @Override
-        public void onMidiSongSelect(@NonNull MidiInputDevice sender, int song) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "SongSelect from: " + sender.getDeviceName() + ", song: " + song));
-        }
-
-        @Override
-        public void onMidiSongPositionPointer(@NonNull MidiInputDevice sender, int position) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "SongPositionPointer from: " + sender.getDeviceName() + ", position: " + position));
-        }
-
-        @Override
-        public void onMidiTuneRequest(@NonNull MidiInputDevice sender) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "TuneRequest from: " + sender.getDeviceName()));
-        }
-
-        @Override
-        public void onMidiTimingClock(@NonNull MidiInputDevice sender) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "TimingClock from: " + sender.getDeviceName()));
-        }
-
-        @Override
-        public void onMidiStart(@NonNull MidiInputDevice sender) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "Start from: " + sender.getDeviceName()));
-        }
-
-        @Override
-        public void onMidiContinue(@NonNull MidiInputDevice sender) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "Continue from: " + sender.getDeviceName()));
-        }
-
-        @Override
-        public void onMidiStop(@NonNull MidiInputDevice sender) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "Stop from: " + sender.getDeviceName()));
-        }
-
-        @Override
-        public void onMidiActiveSensing(@NonNull MidiInputDevice sender) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "ActiveSensing from: " + sender.getDeviceName()));
-        }
-
-        @Override
-        public void onMidiReset(@NonNull MidiInputDevice sender) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "Reset from: " + sender.getDeviceName()));
-        }
-
-        @Override
-        public void onRPNMessage(@NonNull MidiInputDevice sender, int channel, int function, int value) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "RPN message from: " + sender.getDeviceName() + ", channel: " + channel + ", function: " + function + ", value: " + value));
-        }
-
-        @Override
-        public void onNRPNMessage(@NonNull MidiInputDevice sender, int channel, int function, int value) {
-            midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "NRPN message from: " + sender.getDeviceName() + ", channel: " + channel + ", function: " + function + ", value: " + value));
-        }
-    };
+    OnPixmobEventListener onPixmobEventListener = new OnPixmobEventListener();
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -384,7 +288,8 @@ public class CentralActivity extends Activity {
         bleMidiCentralProvider.setOnMidiDeviceAttachedListener(new OnMidiDeviceAttachedListener() {
             @Override
             public void onMidiInputDeviceAttached(@NonNull MidiInputDevice midiInputDevice) {
-                midiInputDevice.setOnMidiInputEventListener(onMidiInputEventListener);
+                onPixmobEventListener.setHandler(midiInputEventHandler);
+                midiInputDevice.setOnMidiInputEventListener(onPixmobEventListener);
 
                 Message message = new Message();
                 message.arg1 = MIDI_DEVICE_ATTACHED;
