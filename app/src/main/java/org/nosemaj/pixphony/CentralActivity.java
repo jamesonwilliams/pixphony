@@ -37,10 +37,19 @@ import jp.kshoji.blemidi.util.BleUtils;
  * @author K.Shoji
  */
 public class CentralActivity extends Activity {
+    /*
+     * 0 scans forever -- TODO: good for testing, but release?
+     */
+    private static final int BLE_SCAN_TIME_MS = 0;
+
+    private static final int MIDI_DEVICE_DETACHED = 0;
+    private static final int MIDI_DEVICE_ATTACHED = 1;
+
+    private static final int WHITE_KEY_COLOR = 0xFFFFFFFF;
+    private static final int BLACK_KEY_COLOR = 0xFF808080;
+
     BleMidiCentralProvider bleMidiCentralProvider;
-
     MenuItem toggleScanMenu;
-
     boolean isScanning = false;
 
     @Override
@@ -64,7 +73,7 @@ public class CentralActivity extends Activity {
                 if (isScanning) {
                     bleMidiCentralProvider.stopScanDevice();
                 } else {
-                    bleMidiCentralProvider.startScanDevice(0);
+                    bleMidiCentralProvider.startScanDevice(BLE_SCAN_TIME_MS);
                 }
                 return true;
         }
@@ -88,7 +97,7 @@ public class CentralActivity extends Activity {
         public boolean handleMessage(Message msg) {
             if (msg.obj instanceof MidiInputDevice) {
                 MidiInputDevice midiInputDevice = (MidiInputDevice) msg.obj;
-                if (msg.arg1 == 0) {
+                if (msg.arg1 == MIDI_DEVICE_ATTACHED) {
                     connectedDevicesAdapter.remove(midiInputDevice);
                     connectedDevicesAdapter.add(midiInputDevice);
                     connectedDevicesAdapter.notifyDataSetChanged();
@@ -113,7 +122,11 @@ public class CentralActivity extends Activity {
      * @return chosen {@link jp.kshoji.blemidi.device.MidiInputDevice}
      */
     MidiInputDevice getBleMidiDeviceFromSpinner() {
-        if (deviceSpinner != null && deviceSpinner.getSelectedItemPosition() >= 0 && connectedDevicesAdapter != null && !connectedDevicesAdapter.isEmpty()) {
+        if (deviceSpinner != null && 
+                deviceSpinner.getSelectedItemPosition() >= 0 &&
+                connectedDevicesAdapter != null &&
+                !connectedDevicesAdapter.isEmpty()) {
+
             MidiInputDevice device = connectedDevicesAdapter.getItem(deviceSpinner.getSelectedItemPosition());
             if (device != null) {
                 Set<MidiInputDevice> midiInputDevices = bleMidiCentralProvider.getMidiInputDevices();
@@ -124,6 +137,7 @@ public class CentralActivity extends Activity {
                 }
             }
         }
+
         return null;
     }
 
@@ -259,6 +273,7 @@ public class CentralActivity extends Activity {
                 return false;
             }
         };
+
         findViewById(R.id.buttonC).setOnTouchListener(onToneButtonTouchListener);
         findViewById(R.id.buttonCis).setOnTouchListener(onToneButtonTouchListener);
         findViewById(R.id.buttonD).setOnTouchListener(onToneButtonTouchListener);
@@ -273,21 +288,19 @@ public class CentralActivity extends Activity {
         findViewById(R.id.buttonB).setOnTouchListener(onToneButtonTouchListener);
         findViewById(R.id.buttonC2).setOnTouchListener(onToneButtonTouchListener);
 
-        int whiteKeyColor = 0xFFFFFFFF;
-        int blackKeyColor = 0xFF808080;
-        findViewById(R.id.buttonC).getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonCis).getBackground().setColorFilter(blackKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonD).getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonDis).getBackground().setColorFilter(blackKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonE).getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonF).getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonFis).getBackground().setColorFilter(blackKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonG).getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonGis).getBackground().setColorFilter(blackKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonA).getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonAis).getBackground().setColorFilter(blackKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonB).getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonC2).getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonC).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonCis).getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonD).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonDis).getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonE).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonF).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonFis).getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonG).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonGis).getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonA).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonAis).getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonB).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        findViewById(R.id.buttonC2).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
 
         Button disconnectButton = (Button) findViewById(R.id.disconnectButton);
         disconnectButton.setOnClickListener(new View.OnClickListener() {
@@ -349,7 +362,7 @@ public class CentralActivity extends Activity {
                 midiInputDevice.setOnMidiInputEventListener(onMidiInputEventListener);
 
                 Message message = new Message();
-                message.arg1 = 0;
+                message.arg1 = MIDI_DEVICE_ATTACHED;
                 message.obj = midiInputDevice;
                 midiConnectionChangedHandler.sendMessage(message);
             }
@@ -364,7 +377,7 @@ public class CentralActivity extends Activity {
             public void onMidiInputDeviceDetached(@NonNull MidiInputDevice midiInputDevice) {
                 // do nothing
                 Message message = new Message();
-                message.arg1 = 1;
+                message.arg1 = MIDI_DEVICE_DETACHED;
                 message.obj = midiInputDevice;
                 midiConnectionChangedHandler.sendMessage(message);
             }
@@ -389,7 +402,7 @@ public class CentralActivity extends Activity {
         });
 
         // scan devices for 30 seconds
-        bleMidiCentralProvider.startScanDevice(30000);
+        bleMidiCentralProvider.startScanDevice(BLE_SCAN_TIME_MS);
     }
 
     @Override
