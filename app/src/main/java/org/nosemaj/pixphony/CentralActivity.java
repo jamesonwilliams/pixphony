@@ -498,6 +498,15 @@ public class CentralActivity extends Activity {
             }
         });
 
+        Button settingsButton = (Button) findViewById(R.id.settingsButton);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(CentralActivity.this, SettingsActivity.class);
+                startActivity(i);
+            }
+        });
+
         if (!BleUtils.isBluetoothEnabled(this)) {
             BleUtils.enableBluetooth(this);
             return;
