@@ -68,6 +68,10 @@ public class OnPixmobEventListener implements OnMidiInputEventListener {
     @Override
     public void onMidiNoteOn(@NonNull MidiInputDevice sender, int channel, int note, int velocity) {
         sendLogMessage("NoteOn from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", velocity: " + velocity);
+
+        if (velocity > 0) {
+            sendMidiNote(note);
+        }
     }
 
     @Override
