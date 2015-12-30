@@ -83,29 +83,18 @@ public class CentralActivity extends Activity {
         }
     });
 
-    final Handler midiOutputEventHandler = new Handler(new Handler.Callback() {
+    final Handler midiConnectionChangedHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if (midiOutputEventAdapter != null) {
-                midiOutputEventAdapter.add((String)msg.obj);
-            }
-            // message handled successfully
-            return true;
-        }
-    });
-
-    final Handler midiOutputConnectionChangedHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            if (msg.obj instanceof MidiOutputDevice) {
-                MidiOutputDevice midiOutputDevice = (MidiOutputDevice) msg.obj;
+            if (msg.obj instanceof MidiInputDevice) {
+                MidiInputDevice midiInputDevice = (MidiInputDevice) msg.obj;
                 if (msg.arg1 == 0) {
-                    connectedOutputDevicesAdapter.remove(midiOutputDevice);
-                    connectedOutputDevicesAdapter.add(midiOutputDevice);
-                    connectedOutputDevicesAdapter.notifyDataSetChanged();
+                    connectedDevicesAdapter.remove(midiInputDevice);
+                    connectedDevicesAdapter.add(midiInputDevice);
+                    connectedDevicesAdapter.notifyDataSetChanged();
                 } else {
-                    connectedOutputDevicesAdapter.remove(midiOutputDevice);
-                    connectedOutputDevicesAdapter.notifyDataSetChanged();
+                    connectedDevicesAdapter.remove(midiInputDevice);
+                    connectedDevicesAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -115,25 +104,23 @@ public class CentralActivity extends Activity {
     });
 
     ArrayAdapter<String> midiInputEventAdapter;
-    ArrayAdapter<String> midiOutputEventAdapter;
     Spinner deviceSpinner;
-
-    ArrayAdapter<MidiOutputDevice> connectedOutputDevicesAdapter;
+    ArrayAdapter<MidiInputDevice> connectedDevicesAdapter;
 
     /**
      * Choose device from spinner
      *
-     * @return chosen {@link jp.kshoji.blemidi.device.MidiOutputDevice}
+     * @return chosen {@link jp.kshoji.blemidi.device.MidiInputDevice}
      */
-    MidiOutputDevice getBleMidiOutputDeviceFromSpinner() {
-        if (deviceSpinner != null && deviceSpinner.getSelectedItemPosition() >= 0 && connectedOutputDevicesAdapter != null && !connectedOutputDevicesAdapter.isEmpty()) {
-            MidiOutputDevice device = connectedOutputDevicesAdapter.getItem(deviceSpinner.getSelectedItemPosition());
+    MidiInputDevice getBleMidiDeviceFromSpinner() {
+        if (deviceSpinner != null && deviceSpinner.getSelectedItemPosition() >= 0 && connectedDevicesAdapter != null && !connectedDevicesAdapter.isEmpty()) {
+            MidiInputDevice device = connectedDevicesAdapter.getItem(deviceSpinner.getSelectedItemPosition());
             if (device != null) {
-                Set<MidiOutputDevice> midiOutputDevices = bleMidiCentralProvider.getMidiOutputDevices();
+                Set<MidiInputDevice> midiInputDevices = bleMidiCentralProvider.getMidiInputDevices();
 
-                if (midiOutputDevices.size() > 0) {
+                if (midiInputDevices.size() > 0) {
                     // returns the first one.
-                    return (MidiOutputDevice) midiOutputDevices.toArray()[0];
+                    return (MidiInputDevice) midiInputDevices.toArray()[0];
                 }
             }
         }
@@ -249,35 +236,21 @@ public class CentralActivity extends Activity {
 
         ListView midiInputEventListView = (ListView) findViewById(R.id.midiInputEventListView);
         midiInputEventAdapter = new ArrayAdapter<>(this, R.layout.midi_event, R.id.midiEventDescriptionTextView);
-        midiInputEventAdapter = new ArrayAdapter<>(this, R.layout.midi_event, R.id.midiEventDescriptionTextView);
         midiInputEventListView.setAdapter(midiInputEventAdapter);
 
-        ListView midiOutputEventListView = (ListView) findViewById(R.id.midiOutputEventListView);
-        midiOutputEventAdapter = new ArrayAdapter<>(this, R.layout.midi_event, R.id.midiEventDescriptionTextView);
-        midiOutputEventListView.setAdapter(midiOutputEventAdapter);
-
         deviceSpinner = (Spinner) findViewById(R.id.deviceNameSpinner);
-        connectedOutputDevicesAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_dropdown_item, android.R.id.text1, new ArrayList<MidiOutputDevice>());
-        deviceSpinner.setAdapter(connectedOutputDevicesAdapter);
+        connectedDevicesAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_dropdown_item, android.R.id.text1, new ArrayList<MidiInputDevice>());
+        deviceSpinner.setAdapter(connectedDevicesAdapter);
 
         View.OnTouchListener onToneButtonTouchListener = new View.OnTouchListener() {
-
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                MidiOutputDevice midiOutputDevice = getBleMidiOutputDeviceFromSpinner();
-                if (midiOutputDevice == null) {
-                    return false;
-                }
-
                 int note = 60 + Integer.parseInt((String) v.getTag());
+
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        midiOutputDevice.sendMidiNoteOn(0, note, 127);
-                        midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "NoteOn to: " + midiOutputDevice.getDeviceName() + ", note: " + note + ", velocity: 127"));
                         break;
                     case MotionEvent.ACTION_UP:
-                        midiOutputDevice.sendMidiNoteOff(0, note, 127);
-                        midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "NoteOff to: " + midiOutputDevice.getDeviceName() + ", note: " + note + ", velocity: 127"));
                         break;
                     default:
                         // do nothing.
@@ -320,9 +293,9 @@ public class CentralActivity extends Activity {
         disconnectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MidiOutputDevice bleMidiOutputDeviceFromSpinner = getBleMidiOutputDeviceFromSpinner();
-                if (bleMidiOutputDeviceFromSpinner != null) {
-                    bleMidiCentralProvider.disconnectDevice(bleMidiOutputDeviceFromSpinner);
+                MidiInputDevice bleMidiDeviceFromSpinner = getBleMidiDeviceFromSpinner();
+                if (bleMidiDeviceFromSpinner != null) {
+                    bleMidiCentralProvider.disconnectDevice(bleMidiDeviceFromSpinner);
                 }
             }
         });
@@ -374,14 +347,15 @@ public class CentralActivity extends Activity {
             @Override
             public void onMidiInputDeviceAttached(@NonNull MidiInputDevice midiInputDevice) {
                 midiInputDevice.setOnMidiInputEventListener(onMidiInputEventListener);
+
+                Message message = new Message();
+                message.arg1 = 0;
+                message.obj = midiInputDevice;
+                midiConnectionChangedHandler.sendMessage(message);
             }
 
             @Override
             public void onMidiOutputDeviceAttached(@NonNull MidiOutputDevice midiOutputDevice) {
-                Message message = new Message();
-                message.arg1 = 0;
-                message.obj = midiOutputDevice;
-                midiOutputConnectionChangedHandler.sendMessage(message);
             }
         });
 
@@ -389,14 +363,14 @@ public class CentralActivity extends Activity {
             @Override
             public void onMidiInputDeviceDetached(@NonNull MidiInputDevice midiInputDevice) {
                 // do nothing
+                Message message = new Message();
+                message.arg1 = 1;
+                message.obj = midiInputDevice;
+                midiConnectionChangedHandler.sendMessage(message);
             }
 
             @Override
             public void onMidiOutputDeviceDetached(@NonNull MidiOutputDevice midiOutputDevice) {
-                Message message = new Message();
-                message.arg1 = 1;
-                message.obj = midiOutputDevice;
-                midiOutputConnectionChangedHandler.sendMessage(message);
             }
         });
 
