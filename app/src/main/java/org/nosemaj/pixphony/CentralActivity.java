@@ -5,9 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,11 +21,7 @@ import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import jp.kshoji.blemidi.central.BleMidiCentralProvider;
 import jp.kshoji.blemidi.device.MidiInputDevice;
@@ -38,9 +31,6 @@ import jp.kshoji.blemidi.listener.OnMidiDeviceDetachedListener;
 import jp.kshoji.blemidi.listener.OnMidiInputEventListener;
 import jp.kshoji.blemidi.listener.OnMidiScanStatusListener;
 import jp.kshoji.blemidi.util.BleUtils;
-
-import org.nosemaj.pixphony.util.SoundMaker;
-import org.nosemaj.pixphony.util.Tone;
 
 /**
  * Activity for BLE MIDI Central Application
@@ -132,14 +122,6 @@ public class CentralActivity extends Activity {
 
     ArrayAdapter<MidiOutputDevice> connectedOutputDevicesAdapter;
 
-    // Play sounds
-    AudioTrack audioTrack;
-    Timer timer;
-    TimerTask timerTask;
-    SoundMaker soundMaker;
-    final Set<Tone> tones = new HashSet<>();
-    int currentProgram = 0;
-
     /**
      * Choose device from spinner
      *
@@ -179,16 +161,6 @@ public class CentralActivity extends Activity {
                 getBleMidiOutputDeviceFromSpinner().sendMidiNoteOff(channel, note, velocity);
                 midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "NoteOff from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", velocity: " + velocity));
             }
-
-            synchronized (tones) {
-                Iterator<Tone> it = tones.iterator();
-                while (it.hasNext()) {
-                    Tone tone = it.next();
-                    if (tone.getNote() == note) {
-                        it.remove();
-                    }
-                }
-            }
         }
 
         @Override
@@ -198,20 +170,6 @@ public class CentralActivity extends Activity {
             if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
                 getBleMidiOutputDeviceFromSpinner().sendMidiNoteOn(channel, note, velocity);
                 midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "NoteOn from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", velocity: " + velocity));
-            }
-
-            synchronized (tones) {
-                if (velocity == 0) {
-                    Iterator<Tone> it = tones.iterator();
-                    while (it.hasNext()) {
-                        Tone tone = it.next();
-                        if (tone.getNote() == note) {
-                            it.remove();
-                        }
-                    }
-                } else {
-                    tones.add(new Tone(note, velocity / 127.0, currentProgram));
-                }
             }
         }
 
@@ -242,13 +200,6 @@ public class CentralActivity extends Activity {
             if (thruToggleButton != null && thruToggleButton.isChecked() && getBleMidiOutputDeviceFromSpinner() != null) {
                 getBleMidiOutputDeviceFromSpinner().sendMidiProgramChange(channel, program);
                 midiOutputEventHandler.sendMessage(Message.obtain(midiOutputEventHandler, 0, "ProgramChange from: " + sender.getDeviceName() + ", channel: " + channel + ", program: " + program));
-            }
-
-            currentProgram = program % Tone.FORM_MAX;
-            synchronized (tones) {
-                for (Tone tone : tones) {
-                    tone.setForm(currentProgram);
-                }
             }
         }
 
@@ -459,34 +410,6 @@ public class CentralActivity extends Activity {
         findViewById(R.id.buttonB).getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
         findViewById(R.id.buttonC2).getBackground().setColorFilter(whiteKeyColor, PorterDuff.Mode.MULTIPLY);
 
-        soundMaker = SoundMaker.getInstance();
-        final int bufferSize = AudioTrack.getMinBufferSize(soundMaker.getSamplingRate(), AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        int timerRate = bufferSize * 1000 / soundMaker.getSamplingRate() / 2;
-        final short[] wav = new short[bufferSize / 2];
-
-        audioTrack = prepareAudioTrack(soundMaker.getSamplingRate());
-        timer = new Timer();
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (soundMaker != null) {
-                    synchronized (tones) {
-                        for (int i = 0; i < wav.length; i++) {
-                            wav[i] = (short) (soundMaker.makeWaveStream(tones) * 1024);
-                        }
-                    }
-                    try {
-                        if (audioTrack != null) {
-                            audioTrack.write(wav, 0, wav.length);
-                        }
-                    } catch (IllegalStateException | NullPointerException e) {
-                        // do nothing
-                    }
-                }
-            }
-        };
-        timer.scheduleAtFixedRate(timerTask, 10, timerRate);
-
         Button disconnectButton = (Button) findViewById(R.id.disconnectButton);
         disconnectButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -631,38 +554,5 @@ public class CentralActivity extends Activity {
         if (bleMidiCentralProvider != null) {
             bleMidiCentralProvider.terminate();
         }
-
-        if (timer != null) {
-            try {
-                timer.cancel();
-                timer.purge();
-            } catch (Throwable t) {
-                // do nothing
-            } finally {
-                timer = null;
-            }
-        }
-        if (audioTrack != null) {
-            try {
-                audioTrack.stop();
-                audioTrack.flush();
-                audioTrack.release();
-            } catch (Throwable t) {
-                // do nothing
-            } finally {
-                audioTrack = null;
-            }
-        }
-    }
-
-    /**
-     * @param samplingRate sampling rate for playing
-     * @return configured {@link android.media.AudioTrack} instance
-     */
-    private static AudioTrack prepareAudioTrack(int samplingRate) {
-        AudioTrack result = new AudioTrack(AudioManager.STREAM_MUSIC, samplingRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, AudioTrack.getMinBufferSize(samplingRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT), AudioTrack.MODE_STREAM);
-        result.setStereoVolume(1f, 1f);
-        result.play();
-        return result;
     }
 }
