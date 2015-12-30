@@ -52,6 +52,8 @@ public class CentralActivity extends Activity {
     MenuItem toggleScanMenu;
     boolean isScanning = false;
 
+    SoundPlayer soundPlayer;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.central, menu);
@@ -150,6 +152,10 @@ public class CentralActivity extends Activity {
         @Override
         public void onMidiNoteOff(@NonNull MidiInputDevice sender, int channel, int note, int velocity) {
             midiInputEventHandler.sendMessage(Message.obtain(midiInputEventHandler, 0, "NoteOff from: " + sender.getDeviceName() + " channel: " + channel + ", note: " + note + ", velocity: " + velocity));
+
+            if (velocity > 0) {
+                soundPlayer.playMidiNote(note);
+            }
         }
 
         @Override
@@ -255,6 +261,9 @@ public class CentralActivity extends Activity {
         deviceSpinner = (Spinner) findViewById(R.id.deviceNameSpinner);
         connectedDevicesAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_dropdown_item, android.R.id.text1, new ArrayList<MidiInputDevice>());
         deviceSpinner.setAdapter(connectedDevicesAdapter);
+
+        soundPlayer = SoundPlayer.getInstance(getApplicationContext());
+        soundPlayer.setMappedInstrument(Instruments.get(Instruments.PANFLUTE));
 
         View.OnTouchListener onToneButtonTouchListener = new View.OnTouchListener() {
             @Override
