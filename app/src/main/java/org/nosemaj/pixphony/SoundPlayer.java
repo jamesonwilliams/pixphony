@@ -68,6 +68,10 @@ public class SoundPlayer {
     }
 
     public void playMidiNote(int midiNote) {
+        /*
+         * One at a time, boys.
+         */
+        stop();
         mStreamId = mSoundPool.play(mSoundId, 1f, 1f, 1, 0, 
                         mMappedInstrument.getPlaybackRate(midiNote));
     }
