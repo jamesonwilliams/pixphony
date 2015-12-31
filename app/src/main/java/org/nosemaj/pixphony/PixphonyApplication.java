@@ -28,17 +28,23 @@ import android.util.Log;
 public class PixphonyApplication extends Application {
     private static final String TAG = PixphonyApplication.class.getName();
 
-    private BleMidiConnectionManager mConnectionManager = null;
+    private static PixmobConnectionManager sConnectionManager = null;
+    private static SoundPlayer sSoundPlayer = null;
 
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate()");
         super.onCreate();
-        mConnectionManager = BleMidiConnectionManager.getInstance(this);
+        sConnectionManager = PixmobConnectionManager.getInstance(this);
+        sSoundPlayer = SoundPlayer.getInstance(this);
     }
 
-    public BleMidiConnectionManager getConnectionManager() {
-        return mConnectionManager;
+    public static PixmobConnectionManager getConnectionManager() {
+        return sConnectionManager;
+    }
+
+    public static SoundPlayer getSoundPlayer() {
+        return sSoundPlayer;
     }
 }
 

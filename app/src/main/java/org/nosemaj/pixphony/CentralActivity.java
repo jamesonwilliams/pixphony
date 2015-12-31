@@ -32,6 +32,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -51,6 +53,8 @@ public class CentralActivity extends Activity {
     private static final int WHITE_KEY_COLOR = 0xFFFFFFFF;
     private static final int BLACK_KEY_COLOR = 0xFF808080;
 
+    private PixmobConnectionManager mConnectionManager = null;
+    private SoundPlayer mSoundPlayer = null;
     boolean isScanning = false;
 
     ArrayAdapter<String> midiInputEventAdapter;
@@ -63,13 +67,22 @@ public class CentralActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mConnectionManager = ((PixphonyApplication)getApplicationContext()).getConnectionManager();
+        mConnectionManager.setListener(mPixmobListener);
+
+        mSoundPlayer = ((PixphonyApplication)getApplicationContext()).getSoundPlayer();
+        mSoundPlayer.setMappedInstrument(Instruments.get(Instruments.PANFLUTE));
+
         ListView midiInputEventListView = (ListView) findViewById(R.id.midiInputEventListView);
         midiInputEventAdapter = new ArrayAdapter<>(this, R.layout.midi_event, R.id.midiEventDescriptionTextView);
         midiInputEventListView.setAdapter(midiInputEventAdapter);
 
         deviceSpinner = (Spinner) findViewById(R.id.deviceNameSpinner);
-        connectedDevicesAdapter = new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_dropdown_item, android.R.id.text1, new ArrayList<MidiInputDevice>());
+        connectedDevicesAdapter = 
+            new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_dropdown_item,
+                               android.R.id.text1, new ArrayList<MidiInputDevice>());
         deviceSpinner.setAdapter(connectedDevicesAdapter);
+        deviceSpinner.setOnItemSelectedListener(mSpinnerListener);
 
         View.OnTouchListener onToneButtonTouchListener = new View.OnTouchListener() {
             @Override
@@ -80,13 +93,16 @@ public class CentralActivity extends Activity {
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        mSoundPlayer.playMidiNote(note);
                         break;
                     case MotionEvent.ACTION_UP:
+                        mSoundPlayer.stop();
                         break;
                     default:
                         // do nothing.
                         break;
                 }
+
                 return false;
             }
         };
@@ -124,9 +140,9 @@ public class CentralActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick() disconnect button");
-                MidiInputDevice bleMidiDeviceFromSpinner = null; //getBleMidiDeviceFromSpinner();
-                if (bleMidiDeviceFromSpinner != null) {
-                    // disconnect
+                MidiInputDevice device = getDeviceFromSpinner();
+                if (device != null) {
+                    mConnectionManager.disconnectDevice(device);
                 }
             }
         });
@@ -141,6 +157,7 @@ public class CentralActivity extends Activity {
             }
         });
 
+        /*
         if (!BleUtils.isBluetoothEnabled(this)) {
             BleUtils.enableBluetooth(this);
             return;
@@ -150,10 +167,91 @@ public class CentralActivity extends Activity {
             alertBleNotSupported();
         } else {
             alertBleOk();
+        }*/
+    }
+
+    OnItemSelectedListener mSpinnerListener = new OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+            Log.d(TAG, deviceSpinner.getItemAtPosition(arg2).toString());
         }
 
-        PixphonyApplication app = (PixphonyApplication)getApplicationContext();
-        Log.d(TAG, "the app says " + app.getConnectionManager());
+        @Override
+        public void onNothingSelected(AdapterView<?> arg0) {
+            // TODO Auto-generated method stub
+        }
+    }; 
+
+    PixmobDeviceListener mPixmobListener = new PixmobDeviceListener() {
+        @Override
+        public void onDevicePlayed(@NonNull MidiInputDevice sender, int channel, int note, int velocity, boolean noteOn) {
+            super.onDevicePlayed(sender, channel, note, velocity, noteOn);
+            mSoundPlayer.playMidiNote(note);
+        }
+
+        @Override
+        public void onDeviceConnected(@NonNull MidiInputDevice midiInputDevice) {
+            super.onDeviceConnected(midiInputDevice);
+            updateDevicesAdapter(midiInputDevice, true);
+        }
+
+        @Override
+        public void onDeviceDisconnected(@NonNull MidiInputDevice midiInputDevice) {
+            super.onDeviceDisconnected(midiInputDevice);
+            updateDevicesAdapter(midiInputDevice, false);
+        }
+
+        @Override
+        public void onLog(String text) {
+            updateListAdapter(text);
+        }
+    };
+
+    private void updateListAdapter(final String text) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                midiInputEventAdapter.add(text);
+            }
+        });
+    }
+
+    private void updateDevicesAdapter(final MidiInputDevice device, final boolean isConnected) {
+        Log.d(TAG, "updateDevicesAdapter() is called.");
+        runOnUiThread(new Runnable() {
+             @Override
+             public void run() {
+                /*
+                 * Try to remove even if we are adding, to make sure it isn't there twice.
+                 */
+                connectedDevicesAdapter.remove(device);
+
+                if (isConnected) {
+                    connectedDevicesAdapter.add(device);
+                }
+
+                connectedDevicesAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+    /**
+     * Choose device from spinner
+     *
+     * @return chosen {@link jp.kshoji.blemidi.device.MidiOutputDevice}
+     */
+    MidiInputDevice getDeviceFromSpinner() {
+        if (deviceSpinner != null && 
+            deviceSpinner.getSelectedItemPosition() >= 0 && 
+            connectedDevicesAdapter != null &&
+            !connectedDevicesAdapter.isEmpty()) {
+
+            MidiInputDevice device = connectedDevicesAdapter.getItem(deviceSpinner.getSelectedItemPosition());
+            if (device != null) {
+                return device;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -178,10 +276,10 @@ public class CentralActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        mConnectionManager.disconnectAllDevices();
+
         Log.d(TAG, "onDestroy()");
         super.onDestroy();
-
-        // cleanup ble?
     }
 
     private void alertBleNotSupported() {
