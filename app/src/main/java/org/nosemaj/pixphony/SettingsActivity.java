@@ -19,6 +19,8 @@ package org.nosemaj.pixphony;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
+import org.nosemaj.pixphony.R;
+
 /*
  * https://developer.android.com/guide/topics/ui/settings.html#Activity
  */

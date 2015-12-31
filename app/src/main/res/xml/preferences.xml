@@ -21,6 +21,23 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <Preference
+        android:title="@string/title_activity_piano"
+        android:summary="@string/summary_activity_piano">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="org.nosemaj.pixphony"
+            android:targetClass="org.nosemaj.pixphony.PianoActivity" />
+    </Preference>
+    <Preference
+        android:title="@string/title_activity_debug"
+        android:summary="@string/summary_activity_debug">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="org.nosemaj.pixphony"
+            android:targetClass="org.nosemaj.pixphony.DebugActivity" />
+    </Preference>
+
     <EditTextPreference
         android:key="weight"
         android:defaultValue="place holder"

@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
+import org.nosemaj.pixphony.R;
+
 /*
  * See https://stackoverflow.com/questions/5486789/how-do-i-make-a-splash-screen
  */

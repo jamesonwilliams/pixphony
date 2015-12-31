@@ -22,13 +22,9 @@ import android.util.Log;
 
 import jp.kshoji.blemidi.central.BleMidiCentralProvider;
 import jp.kshoji.blemidi.device.MidiInputDevice;
-import jp.kshoji.blemidi.device.MidiOutputDevice;
-import jp.kshoji.blemidi.listener.OnMidiDeviceAttachedListener;
-import jp.kshoji.blemidi.listener.OnMidiDeviceDetachedListener;
 import jp.kshoji.blemidi.listener.OnMidiScanStatusListener;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 public class PixmobConnectionManager {
     private static final String TAG = PixmobConnectionManager.class.getName();

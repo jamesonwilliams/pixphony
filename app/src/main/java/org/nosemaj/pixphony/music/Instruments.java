@@ -20,6 +20,8 @@ import org.nosemaj.pixphony.R;
 
 public class Instruments {
     public static final int PANFLUTE = 1;
+    public static final int PIANO = 2;
+
     public static final int PIXMOB_LOWEST_MIDI_NOTE = 55;
 
     private static Instrument mPanflute = new Instrument(R.raw.panflute) {
@@ -29,10 +31,20 @@ public class Instruments {
         }
     };
 
+    private static Instrument mPiano = new Instrument(R.raw.piano4) {
+        @Override
+        public float getPlaybackRate(int midiNote) {
+            /* TODO: this is a hack and a bug and needs to be fixed. */
+            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE + 2);
+        }
+    };
+
     public static Instrument get(int instrument) {
         switch (instrument) {
             case PANFLUTE:
                 return mPanflute;
+            case PIANO:
+                return mPiano;
             default:
                 return null;
         }

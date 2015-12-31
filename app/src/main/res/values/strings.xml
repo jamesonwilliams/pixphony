@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2015 Kaoru Shoji
+  Copyright 2015 Jameson Williams
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,8 +17,18 @@
 
 <resources>
     <string name="app_name">Pixphony</string>
-    <string name="start_scan">start scan</string>
-    <string name="stop_scan">stop scan</string>
-    <string name="start_advertise">start advertise</string>
-    <string name="stop_advertise">stop advertise</string>
+
+    <string name="start_scan">Start scan</string>
+    <string name="stop_scan">Stop scan</string>
+    <string name="start_advertise">Start advertising</string>
+    <string name="stop_advertise">Stop advertising</string>
+
+    <string name="ask_to_enable_ble">Bluetooth not on. Start it now?</string>
+    <string name="notify_enable_ble">Bluetooth is now turned on.</string>
+    <string name="notify_ble_not_available">Bluetooth is not available.</string>
+
+    <string name="title_activity_piano">Piano</string>
+    <string name="summary_activity_piano">Launch Piano</string>
+    <string name="title_activity_debug">Debug</string>
+    <string name="summary_activity_debug">Launch Debugging Activity</string>
 </resources>
