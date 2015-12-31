@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.nosemaj.pixphony;
+package org.nosemaj.pixphony.ble;
 
 import android.support.annotation.NonNull;
 

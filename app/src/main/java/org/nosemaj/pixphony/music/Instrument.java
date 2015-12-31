@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package org.nosemaj.pixphony;
+package org.nosemaj.pixphony.music;
 
-public class Instruments {
-    public static final int PANFLUTE = 1;
-    public static final int PIXMOB_LOWEST_MIDI_NOTE = 55;
+public abstract class Instrument {
+    private int mSample;
 
-    private static Instrument mPanflute = new Instrument(R.raw.panflute) {
-        @Override
-        public float getPlaybackRate(int midiNote) {
-            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE);
-        }
-    };
-
-    public static Instrument get(int instrument) {
-        switch (instrument) {
-            case PANFLUTE:
-                return mPanflute;
-            default:
-                return null;
-        }
+    public int getSample() {
+        return mSample;
     }
-}
 
+    public Instrument(int sample) {
+        mSample = sample;
+    }
+
+    public abstract float getPlaybackRate(int midiNote);
+}

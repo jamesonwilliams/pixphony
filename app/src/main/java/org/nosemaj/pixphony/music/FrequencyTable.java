@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.nosemaj.pixphony;
+package org.nosemaj.pixphony.music;
 
 public class FrequencyTable {
     private static final float BASE_MODULATION = 1f;

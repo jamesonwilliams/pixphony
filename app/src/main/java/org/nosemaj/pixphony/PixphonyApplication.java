@@ -19,6 +19,9 @@ package org.nosemaj.pixphony;
 import android.app.Application;
 import android.util.Log;
 
+import org.nosemaj.pixphony.ble.PixmobConnectionManager;
+import org.nosemaj.pixphony.music.SoundPlayer;
+
 /* 
  * This class was originally added to have a place to store bluetooth
  * connection state, as suggested on stack overflow answer here:

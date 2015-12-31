@@ -36,6 +36,11 @@ import android.widget.AdapterView;
 import jp.kshoji.blemidi.device.MidiInputDevice;
 import jp.kshoji.blemidi.util.BleUtils;
 
+import org.nosemaj.pixphony.ble.PixmobDeviceListener;
+import org.nosemaj.pixphony.ble.PixmobConnectionManager;
+import org.nosemaj.pixphony.music.Instruments;
+import org.nosemaj.pixphony.music.SoundPlayer;
+
 import java.util.ArrayList;
 
 public class DebugActivity extends Activity {

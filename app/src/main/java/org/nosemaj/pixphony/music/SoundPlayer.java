@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.nosemaj.pixphony;
+package org.nosemaj.pixphony.music;
 
 import android.content.Context;
 import android.media.AudioAttributes;
