@@ -39,8 +39,6 @@ public class PixmobConnectionManager {
 
     private BleMidiCentralProvider mProvider;
 
-    private ArrayList<MidiInputDevice> mConnectedDevices = new ArrayList<MidiInputDevice>();
-
     private static volatile PixmobConnectionManager sInstance = null;
     private static Context sContext = null;
     private PixmobConnectionManager() {}
@@ -48,7 +46,6 @@ public class PixmobConnectionManager {
     private PixmobConnectionManager(Context context) {
         Log.d(TAG, "PixmobConnectionManager(context)");
         sContext = context;
-        setupCentralProvider();
     }
 
     public static synchronized PixmobConnectionManager getInstance(Context context) {
@@ -111,6 +108,7 @@ public class PixmobConnectionManager {
         @Override
         public void onMidiInputDeviceAttached(@NonNull MidiInputDevice midiInputDevice) {
             super.onMidiInputDeviceAttached(midiInputDevice);
+            midiInputDevice.setOnMidiInputEventListener(this);
 
             if (mListener != null) {
                 mListener.onDeviceConnected(midiInputDevice);
@@ -144,15 +142,16 @@ public class PixmobConnectionManager {
     /**
      * Configure BleMidiCentralProvider instance
      */
-    private void setupCentralProvider() {
+    public void init() {
         Log.d(TAG, "setupCentralProvider()");
         mProvider = new BleMidiCentralProvider(sContext);
+        attachListeners();
+    }
 
+    public void attachListeners() {
+        mProvider.setOnMidiScanStatusListener(mScanStatusListener);
         mProvider.setOnMidiDeviceAttachedListener(mBleMidiEventListener);
         mProvider.setOnMidiDeviceDetachedListener(mBleMidiEventListener);
-        mProvider.setOnMidiScanStatusListener(mScanStatusListener);
-
-        mProvider.startScanDevice(BLE_SCAN_TIME_MS);
     }
 
     public ArrayList<MidiInputDevice> getConnectedDevices() {

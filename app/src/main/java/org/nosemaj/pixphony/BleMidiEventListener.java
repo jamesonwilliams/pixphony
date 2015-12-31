@@ -143,7 +143,6 @@ public class BleMidiEventListener implements OnMidiInputEventListener,
     @Override
     public void onMidiInputDeviceAttached(@NonNull MidiInputDevice midiInputDevice) {
         onLog("onMidiInputDeviceAttached(" + midiInputDevice.getDeviceName() + ")");
-        midiInputDevice.setOnMidiInputEventListener(this);
     }
 
     @Override

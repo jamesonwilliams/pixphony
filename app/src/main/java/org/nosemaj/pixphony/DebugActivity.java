@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Kaoru Shoji
+ * Copyright 2015 Jameson Williams
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -35,106 +33,85 @@ import android.widget.Spinner;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.AdapterView;
 
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-
 import jp.kshoji.blemidi.device.MidiInputDevice;
 import jp.kshoji.blemidi.util.BleUtils;
 
-/**
- * Activity for BLE MIDI Central Application
- *
- * @author K.Shoji
- */
-public class CentralActivity extends Activity {
-    private static final String TAG = CentralActivity.class.getName();
+import java.util.ArrayList;
+
+public class DebugActivity extends Activity {
+    private static final String TAG = DebugActivity.class.getName();
 
     private static final int WHITE_KEY_COLOR = 0xFFFFFFFF;
     private static final int BLACK_KEY_COLOR = 0xFF808080;
 
     private PixmobConnectionManager mConnectionManager = null;
     private SoundPlayer mSoundPlayer = null;
-    boolean isScanning = false;
 
-    ArrayAdapter<String> midiInputEventAdapter;
-    Spinner deviceSpinner;
-    ArrayAdapter<MidiInputDevice> connectedDevicesAdapter;
+    private boolean mBleInitialized = false;
+
+    private ArrayAdapter<String> mEventLogAdapter;
+    private Spinner mDeviceSpinner;
+    private ArrayAdapter<MidiInputDevice> mMidiDeviceAdapter;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         Log.d(TAG, "onCreate()");
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        mConnectionManager = ((PixphonyApplication)getApplicationContext()).getConnectionManager();
-        mConnectionManager.setListener(mPixmobListener);
+        setupListView();
+        setupSpinner();
+        setupKeys();
+        setupButtons();
 
+        setupSoundPlayer();
+
+        if (checkForBle()) {
+            mBleInitialized = false;
+            setupBleMidi();
+        }
+    }
+
+    private void setupSoundPlayer() {
         mSoundPlayer = ((PixphonyApplication)getApplicationContext()).getSoundPlayer();
         mSoundPlayer.setMappedInstrument(Instruments.get(Instruments.PANFLUTE));
+    }
 
-        ListView midiInputEventListView = (ListView) findViewById(R.id.midiInputEventListView);
-        midiInputEventAdapter = new ArrayAdapter<>(this, R.layout.midi_event, R.id.midiEventDescriptionTextView);
-        midiInputEventListView.setAdapter(midiInputEventAdapter);
+    private void setupBleMidi() {
+        mConnectionManager = ((PixphonyApplication)getApplicationContext()).getConnectionManager();
 
-        deviceSpinner = (Spinner) findViewById(R.id.deviceNameSpinner);
-        connectedDevicesAdapter = 
-            new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_dropdown_item,
-                               android.R.id.text1, new ArrayList<MidiInputDevice>());
-        deviceSpinner.setAdapter(connectedDevicesAdapter);
-        deviceSpinner.setOnItemSelectedListener(mSpinnerListener);
+        if (!mBleInitialized) {
+            mConnectionManager.setListener(mPixmobListener);
+            mConnectionManager.init();
+            mConnectionManager.startScan();
+            mBleInitialized = true;
+        }
+    }
 
-        View.OnTouchListener onToneButtonTouchListener = new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int note = 60 + Integer.parseInt((String) v.getTag());
+    private boolean checkForBle() {
+        if (!BleUtils.isBluetoothEnabled(this)) {
+            BleUtils.enableBluetooth(this);
+            return false;
+        }
 
-                Log.d(TAG, "onTouch() with note = " + note);
+        if (!BleUtils.isBleSupported(this)) {
+            alertBleNotSupported();
+            return false;
+        }
 
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        mSoundPlayer.playMidiNote(note);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        mSoundPlayer.stop();
-                        break;
-                    default:
-                        // do nothing.
-                        break;
-                }
+        return true;
+    }
 
-                return false;
-            }
-        };
+    private void setupListView() {
+        ListView eventLogView = 
+            (ListView) findViewById(R.id.midiInputEventListView);
+        mEventLogAdapter = 
+            new ArrayAdapter<>(this, R.layout.midi_event, R.id.midiEventDescriptionTextView);
+        eventLogView.setAdapter(mEventLogAdapter);
+    }
 
-        findViewById(R.id.buttonC).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonCis).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonD).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonDis).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonE).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonF).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonFis).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonG).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonGis).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonA).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonAis).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonB).setOnTouchListener(onToneButtonTouchListener);
-        findViewById(R.id.buttonC2).setOnTouchListener(onToneButtonTouchListener);
-
-        findViewById(R.id.buttonC).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonCis).getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonD).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonDis).getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonE).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonF).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonFis).getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonG).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonGis).getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonA).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonAis).getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonB).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-        findViewById(R.id.buttonC2).getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
-
+    private void setupButtons() {
         Button disconnectButton = (Button) findViewById(R.id.disconnectButton);
         disconnectButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,33 +129,85 @@ public class CentralActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick() settings button");
-                Intent i = new Intent(CentralActivity.this, SettingsActivity.class);
+                Intent i = new Intent(DebugActivity.this, SettingsActivity.class);
                 startActivity(i);
             }
         });
+    }
 
-        /*
-        if (!BleUtils.isBluetoothEnabled(this)) {
-            BleUtils.enableBluetooth(this);
-            return;
+    private void setupKeys() {
+        final int whiteKeys[] = {
+            R.id.buttonC, R.id.buttonD, R.id.buttonE, R.id.buttonF,
+            R.id.buttonG, R.id.buttonA, R.id.buttonB, R.id.buttonC2
+        };
+
+        final int blackKeys[] = {
+            R.id.buttonCis, R.id.buttonDis, R.id.buttonFis, R.id.buttonGis,
+            R.id.buttonAis
+        };
+
+        for (int id : whiteKeys) {
+            Button b = (Button) findViewById(id);
+            b.setOnTouchListener(mToneTouchListener);
+            b.getBackground().setColorFilter(WHITE_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
         }
 
-        if (!BleUtils.isBleSupported(this)) {
-            alertBleNotSupported();
-        } else {
-            alertBleOk();
-        }*/
+        for (int id : blackKeys) {
+            Button b = (Button) findViewById(id);
+            b.setOnTouchListener(mToneTouchListener);
+            b.getBackground().setColorFilter(BLACK_KEY_COLOR, PorterDuff.Mode.MULTIPLY);
+        }
+    }
+
+    View.OnTouchListener mToneTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            int note = 60 + Integer.parseInt((String) v.getTag());
+
+            Log.d(TAG, "onTouch() with note = " + note);
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    mSoundPlayer.playMidiNote(note);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    mSoundPlayer.stop();
+                    break;
+                default:
+                    // do nothing.
+                    break;
+            }
+
+            return false;
+        }
+    };
+
+    private void setupSpinner() {
+        mDeviceSpinner = (Spinner) findViewById(R.id.deviceNameSpinner);
+        mMidiDeviceAdapter = 
+            new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_dropdown_item,
+                               android.R.id.text1, new ArrayList<MidiInputDevice>());
+        mDeviceSpinner.setAdapter(mMidiDeviceAdapter);
+        mDeviceSpinner.setOnItemSelectedListener(mSpinnerListener);
     }
 
     OnItemSelectedListener mSpinnerListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-            Log.d(TAG, deviceSpinner.getItemAtPosition(arg2).toString());
+            Log.d(TAG, mDeviceSpinner.getItemAtPosition(arg2).toString());
+            mConnectionManager.attachListeners();
         }
 
         @Override
         public void onNothingSelected(AdapterView<?> arg0) {
             // TODO Auto-generated method stub
+            MidiInputDevice d = getDeviceFromSpinner();
+            if (d == null) {
+                return;
+            }
+
+            Log.d(TAG, d.toString());
+            mConnectionManager.attachListeners();
         }
     }; 
 
@@ -211,7 +240,7 @@ public class CentralActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                midiInputEventAdapter.add(text);
+                mEventLogAdapter.add(text);
             }
         });
     }
@@ -224,28 +253,24 @@ public class CentralActivity extends Activity {
                 /*
                  * Try to remove even if we are adding, to make sure it isn't there twice.
                  */
-                connectedDevicesAdapter.remove(device);
+                mMidiDeviceAdapter.remove(device);
 
                 if (isConnected) {
-                    connectedDevicesAdapter.add(device);
+                    mMidiDeviceAdapter.add(device);
                 }
 
-                connectedDevicesAdapter.notifyDataSetChanged();
+                mMidiDeviceAdapter.notifyDataSetChanged();
             }
         });
     }
-    /**
-     * Choose device from spinner
-     *
-     * @return chosen {@link jp.kshoji.blemidi.device.MidiOutputDevice}
-     */
-    MidiInputDevice getDeviceFromSpinner() {
-        if (deviceSpinner != null && 
-            deviceSpinner.getSelectedItemPosition() >= 0 && 
-            connectedDevicesAdapter != null &&
-            !connectedDevicesAdapter.isEmpty()) {
 
-            MidiInputDevice device = connectedDevicesAdapter.getItem(deviceSpinner.getSelectedItemPosition());
+    MidiInputDevice getDeviceFromSpinner() {
+        if (mDeviceSpinner != null && 
+            mDeviceSpinner.getSelectedItemPosition() >= 0 && 
+            mMidiDeviceAdapter != null &&
+            !mMidiDeviceAdapter.isEmpty()) {
+
+            MidiInputDevice device = mMidiDeviceAdapter.getItem(mDeviceSpinner.getSelectedItemPosition());
             if (device != null) {
                 return device;
             }
@@ -269,15 +294,13 @@ public class CentralActivity extends Activity {
             if (!BleUtils.isBleSupported(this)) {
                 alertBleNotSupported();
             } else {
-                alertBleOk();
+                setupBleMidi();
             }
         }
     }
 
     @Override
     protected void onDestroy() {
-        mConnectionManager.disconnectAllDevices();
-
         Log.d(TAG, "onDestroy()");
         super.onDestroy();
     }
@@ -286,15 +309,6 @@ public class CentralActivity extends Activity {
         alert(true,
               "Not supported",
               "Bluetooth LE is not supported on this device. The app will exit.");
-    }
-
-    private void alertBleOk() {
-        /*
-         * TODO: wtf?
-         */
-        alert(false,
-              "Kewel BeanZ",
-              "You're good to go. Enjoy the app.");
     }
 
     private void alert(final boolean isError, final String title, final String message) {
@@ -319,3 +333,4 @@ public class CentralActivity extends Activity {
         alertDialog.show();
     }
 }
+

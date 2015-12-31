@@ -34,7 +34,7 @@
             android:name=".SettingsActivity">
         </activity>
         <activity
-            android:name=".CentralActivity"
+            android:name=".DebugActivity"
             android:launchMode="singleTask">
         </activity>
         <activity

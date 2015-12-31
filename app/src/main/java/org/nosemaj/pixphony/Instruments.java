@@ -18,11 +18,12 @@ package org.nosemaj.pixphony;
 
 public class Instruments {
     public static final int PANFLUTE = 1;
+    public static final int PIXMOB_LOWEST_MIDI_NOTE = 55;
 
     private static Instrument mPanflute = new Instrument(R.raw.panflute) {
         @Override
         public float getPlaybackRate(int midiNote) {
-            return FrequencyTable.get(midiNote - Pixmob.LOWEST_MIDI_NOTE);
+            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE);
         }
     };
 

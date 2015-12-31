@@ -25,7 +25,7 @@ import android.os.Handler;
  * See https://stackoverflow.com/questions/5486789/how-do-i-make-a-splash-screen
  */
 public class SplashActivity extends Activity {
-    private final int SPLASH_DISPLAY_LENGTH = 1000;
+    private final int SPLASH_DISPLAY_LENGTH = 2000;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -38,7 +38,7 @@ public class SplashActivity extends Activity {
             @Override
             public void run() {
                 /* Create an Intent that will start the Menu-Activity. */
-                Intent mainIntent = new Intent(SplashActivity.this, CentralActivity.class);
+                Intent mainIntent = new Intent(SplashActivity.this, DebugActivity.class);
                 SplashActivity.this.startActivity(mainIntent);
                 SplashActivity.this.finish();
             }
