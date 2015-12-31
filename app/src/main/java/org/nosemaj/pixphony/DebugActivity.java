@@ -50,8 +50,10 @@ public class DebugActivity extends Activity {
     private boolean mBleInitialized = false;
 
     private ArrayAdapter<String> mEventLogAdapter;
+
+    private ArrayList<MidiInputDevice> mDeviceList = new ArrayList<MidiInputDevice>();
+    private ArrayAdapter<MidiInputDevice> mDeviceAdapter;
     private Spinner mDeviceSpinner;
-    private ArrayAdapter<MidiInputDevice> mMidiDeviceAdapter;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -184,10 +186,10 @@ public class DebugActivity extends Activity {
 
     private void setupSpinner() {
         mDeviceSpinner = (Spinner) findViewById(R.id.deviceNameSpinner);
-        mMidiDeviceAdapter = 
+        mDeviceAdapter = 
             new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_dropdown_item,
-                               android.R.id.text1, new ArrayList<MidiInputDevice>());
-        mDeviceSpinner.setAdapter(mMidiDeviceAdapter);
+                               android.R.id.text1, mDeviceList);
+        mDeviceSpinner.setAdapter(mDeviceAdapter);
         mDeviceSpinner.setOnItemSelectedListener(mSpinnerListener);
     }
 
@@ -253,13 +255,13 @@ public class DebugActivity extends Activity {
                 /*
                  * Try to remove even if we are adding, to make sure it isn't there twice.
                  */
-                mMidiDeviceAdapter.remove(device);
+                mDeviceAdapter.remove(device);
 
                 if (isConnected) {
-                    mMidiDeviceAdapter.add(device);
+                    mDeviceAdapter.add(device);
                 }
 
-                mMidiDeviceAdapter.notifyDataSetChanged();
+                mDeviceAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -267,10 +269,10 @@ public class DebugActivity extends Activity {
     MidiInputDevice getDeviceFromSpinner() {
         if (mDeviceSpinner != null && 
             mDeviceSpinner.getSelectedItemPosition() >= 0 && 
-            mMidiDeviceAdapter != null &&
-            !mMidiDeviceAdapter.isEmpty()) {
+            mDeviceAdapter != null &&
+            !mDeviceAdapter.isEmpty()) {
 
-            MidiInputDevice device = mMidiDeviceAdapter.getItem(mDeviceSpinner.getSelectedItemPosition());
+            MidiInputDevice device = mDeviceAdapter.getItem(mDeviceSpinner.getSelectedItemPosition());
             if (device != null) {
                 return device;
             }
