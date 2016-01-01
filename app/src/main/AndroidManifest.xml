@@ -51,6 +51,7 @@
 
         <activity
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:name="org.nosemaj.pixphony.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

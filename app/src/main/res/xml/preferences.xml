@@ -38,10 +38,5 @@
             android:targetClass="org.nosemaj.pixphony.DebugActivity" />
     </Preference>
 
-    <EditTextPreference
-        android:key="weight"
-        android:defaultValue="place holder"
-        />
-
 </PreferenceScreen>
 
