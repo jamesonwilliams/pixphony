@@ -86,6 +86,11 @@ public class SoundPlayer {
     public void setMappedInstrument(Instrument instrument) {
         mMappedInstrument = instrument;
         mSoundPool.unload(mSoundId);
-        mSoundId = mSoundPool.load(sContext, mMappedInstrument.getSample(), 1);
+        mSoundId = mSoundPool.load(sContext, mMappedInstrument.getDefaultSample(), 1);
+    }
+
+    public void setSample(int resourceId) {
+        mSoundPool.unload(mSoundId);
+        mSoundId = mSoundPool.load(sContext, resourceId, 1);
     }
 }

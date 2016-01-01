@@ -21,22 +21,40 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <Preference
-        android:title="@string/title_activity_piano"
-        android:summary="@string/summary_activity_piano">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:targetPackage="org.nosemaj.pixphony"
-            android:targetClass="org.nosemaj.pixphony.PianoActivity" />
-    </Preference>
-    <Preference
-        android:title="@string/title_activity_debug"
-        android:summary="@string/summary_activity_debug">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:targetPackage="org.nosemaj.pixphony"
-            android:targetClass="org.nosemaj.pixphony.DebugActivity" />
-    </Preference>
+    <PreferenceCategory 
+        android:title="@string/instrument_preference" >
+
+        <ListPreference
+            android:key="sample_preference"
+            android:entries="@array/sample_names"
+            android:summary="@string/sample_names_summary"
+            android:entryValues="@array/sample_resources"
+            android:title="@string/sample_preference_title">
+        </ListPreference>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory 
+        android:title="@string/activity_preference_title" >
+
+        <Preference
+            android:title="@string/title_activity_piano"
+            android:summary="@string/summary_activity_piano">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="org.nosemaj.pixphony"
+                android:targetClass="org.nosemaj.pixphony.PianoActivity" />
+        </Preference>
+        <Preference
+            android:title="@string/title_activity_debug"
+            android:summary="@string/summary_activity_debug">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="org.nosemaj.pixphony"
+                android:targetClass="org.nosemaj.pixphony.DebugActivity" />
+        </Preference>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>
 

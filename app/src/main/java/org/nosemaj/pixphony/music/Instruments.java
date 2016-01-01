@@ -24,14 +24,14 @@ public class Instruments {
 
     public static final int PIXMOB_LOWEST_MIDI_NOTE = 55;
 
-    private static Instrument mPanflute = new Instrument(R.raw.panflute) {
+    private static Instrument mPanflute = new Instrument(R.raw.panflute_d) {
         @Override
         public float getPlaybackRate(int midiNote) {
-            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE);
+            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE + 2);
         }
     };
 
-    private static Instrument mPiano = new Instrument(R.raw.piano4) {
+    private static Instrument mPiano = new Instrument(R.raw.piano_c) {
         @Override
         public float getPlaybackRate(int midiNote) {
             /* TODO: this is a hack and a bug and needs to be fixed. */

@@ -27,8 +27,13 @@
     <string name="notify_enable_ble">Bluetooth is now turned on.</string>
     <string name="notify_ble_not_available">Bluetooth is not available.</string>
 
-    <string name="title_activity_piano">Piano</string>
-    <string name="summary_activity_piano">Launch Piano</string>
+    <string name="activity_preference_title">Activity</string>
+    <string name="title_activity_piano">Keyboard</string>
+    <string name="summary_activity_piano">Playable Keyboard</string>
     <string name="title_activity_debug">Debug</string>
-    <string name="summary_activity_debug">Launch Debugging Activity</string>
+    <string name="summary_activity_debug">Event Log, etc.</string>
+
+    <string name="instrument_preference">Instruments</string>
+    <string name="sample_names_summary">Instrument sample used by keyboard</string>
+    <string name="sample_preference_title">Sample Sound</string>
 </resources>

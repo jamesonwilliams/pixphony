@@ -19,7 +19,7 @@ package org.nosemaj.pixphony.music;
 public abstract class Instrument {
     private int mSample;
 
-    public int getSample() {
+    public int getDefaultSample() {
         return mSample;
     }
 
