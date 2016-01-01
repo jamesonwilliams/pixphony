@@ -52,10 +52,10 @@ public class InstrumentLayout {
             return;
         }
 
+
         for (int i = 0; i < buttonCollections.length; i++) {
-            if (buttonCollections[i].currentPressStatus == ButtonLayout.KeyPressed) {
+            if (buttonCollections[i].currentPressStatus == ButtonLayout.KeyPressed){
                 buttonCollections[i].keyButton.setBackgroundResource(buttonCollections[i].keyUnpressedImageId);
-                // buttonCollections[i].keyButton.setImageResource( buttonCollections[i].keyUnpressedImageId);
                 buttonCollections[i].currentPressStatus = ButtonLayout.KeyUnPressed;
             }
         }
@@ -80,7 +80,7 @@ public class InstrumentLayout {
             }
 
             if (buttonCollections[i].currentPressStatus == ButtonLayout.KeyUnPressed) {
-                // buttonCollections[i].keyButton.setImageResource(buttonCollections[i].keyPressedImageId);
+
                 buttonCollections[i].keyButton.setBackgroundResource(buttonCollections[i].keyPressedImageId);
                 buttonCollections[i].currentPressStatus = ButtonLayout.KeyPressed;
                 currentPressedIndex = i;
@@ -115,14 +115,18 @@ public class InstrumentLayout {
             if (IsXYOverButton(buttonCollections[i].keyButton, x, y) &&
                     buttonCollections[i].currentTouchStatus != ButtonLayout.TouchOngoing &&
                     buttonCollections[i].currentPressStatus == ButtonLayout.KeyUnPressed) {
-                //  buttonCollections[i].keyButton.setImageResource(buttonCollections[i].keyPressedImageId);
+
+                ShowUnpressForAllKeys();
+
                 buttonCollections[i].keyButton.setBackgroundResource(buttonCollections[i].keyPressedImageId);
                 buttonCollections[i].currentPressStatus = ButtonLayout.KeyPressed;
                 currentPressedIndex = i;
                 lastPressedKey = i;
                 buttonCollections[i].currentTouchStatus = ButtonLayout.TouchOngoing;
+                if (autoResetKeys) {
+                    resetButtonTimerHandler.postDelayed(updateTimerThread, timeoutInMillisecondsForKeyReset);
+                }
             }
-
             else if (!IsXYOverButton(buttonCollections[i].keyButton, x, y)) {
                 buttonCollections[i].currentTouchStatus = ButtonLayout.TouchNotOn;
             }
@@ -133,7 +137,7 @@ public class InstrumentLayout {
 
     private Handler resetButtonTimerHandler = new Handler();
 
-    // Nagaraj: This is a work around since soundpool API has no
+    // Nagaraj: This is a work around since soundpool API has no playcomplete()
     // callback. We move back the keys after some timeout.
     private Runnable updateTimerThread = new Runnable() {
         public void run() {

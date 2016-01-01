@@ -28,4 +28,5 @@ public abstract class Instrument {
     }
 
     public abstract float getPlaybackRate(int midiNote);
+    public abstract int getBaseNote();
 }

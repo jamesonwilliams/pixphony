@@ -193,6 +193,21 @@ public class PianoActivity extends Activity {
 
     }
 
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+
+        int lastPressedKey = pianoInstrument.HandleSwipeEventsInLayout(event);
+
+        if( lastPressedKey != -1 && lastPressedKey >= 0 && lastPressedKey < pianoInstrument.buttonCollections.length ) {
+            int noteBase = Instruments.PIXMOB_PIANO_LOWEST_MIDI_NOTE;
+            /* TODO: May be improve this to get base note from an API */
+            mSoundPlayer.stop();
+            mSoundPlayer.playMidiNote(pianoInstrument.buttonCollections[lastPressedKey].idToButtonMap + noteBase);
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
     View.OnTouchListener mToneTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
@@ -216,7 +231,7 @@ public class PianoActivity extends Activity {
                 case MotionEvent.ACTION_DOWN:
                     mSoundPlayer.stop();
                     mSoundPlayer.playMidiNote(note);
-                    pianoInstrument.ShowPressKeyForTone(note);
+                    pianoInstrument.ShowPressKeyForTone(index);
                     break;
     
                 default:

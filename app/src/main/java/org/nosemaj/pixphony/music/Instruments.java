@@ -23,11 +23,17 @@ public class Instruments {
     public static final int PIANO = 2;
 
     public static final int PIXMOB_LOWEST_MIDI_NOTE = 55;
+    public static final int PIXMOB_PIANO_LOWEST_MIDI_NOTE = 53;
 
     private static Instrument mPanflute = new Instrument(R.raw.panflute_d) {
         @Override
         public float getPlaybackRate(int midiNote) {
             return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE + 2);
+        }
+
+        @Override
+        public int getBaseNote() {
+            return PIXMOB_LOWEST_MIDI_NOTE;
         }
     };
 
@@ -35,7 +41,11 @@ public class Instruments {
         @Override
         public float getPlaybackRate(int midiNote) {
             /* TODO: this is a hack and a bug and needs to be fixed. */
-            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE + 2);
+            return FrequencyTable.get(midiNote - PIXMOB_PIANO_LOWEST_MIDI_NOTE);
+        }
+        @Override
+        public int getBaseNote() {
+            return PIXMOB_PIANO_LOWEST_MIDI_NOTE;
         }
     };
 
