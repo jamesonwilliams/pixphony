@@ -31,14 +31,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 
 import jp.kshoji.blemidi.device.MidiInputDevice;
 import jp.kshoji.blemidi.util.BleUtils;
@@ -61,10 +56,6 @@ public class PianoActivity extends Activity {
 
     private boolean mBleInitialized = false;
 
-    private ArrayList<MidiInputDevice> mDeviceList = new ArrayList<MidiInputDevice>();
-    private ArrayAdapter<MidiInputDevice> mDeviceAdapter;
-    private Spinner mDeviceSpinner;
-
     private InstrumentLayout pianoInstrument = null;
 
     @Override
@@ -74,7 +65,6 @@ public class PianoActivity extends Activity {
 
         setContentView(R.layout.activity_piano);
 
-        setupSpinner();
         setupKeys();
         setupButtons();
 
@@ -149,20 +139,7 @@ public class PianoActivity extends Activity {
     }
 
     private void setupButtons() {
-        Button disconnectButton = (Button) findViewById(R.id.disconnectButton);
-        disconnectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick() disconnect button");
-                MidiInputDevice device = getDeviceFromSpinner();
-
-                if (device != null) {
-                    mConnectionManager.disconnectDevice(device);
-                }
-            }
-        });
-
-        Button settingsButton = (Button) findViewById(R.id.settingsButton);
+        ImageButton settingsButton = (ImageButton) findViewById(R.id.settingsButton);
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -266,36 +243,6 @@ public class PianoActivity extends Activity {
         }
     };
 
-    private void setupSpinner() {
-        mDeviceSpinner = (Spinner) findViewById(R.id.deviceNameSpinner);
-        mDeviceAdapter =
-            new ArrayAdapter<>(getApplicationContext(), R.layout.simple_spinner_dropdown_item,
-                               android.R.id.text1, mDeviceList);
-        mDeviceSpinner.setAdapter(mDeviceAdapter);
-        mDeviceSpinner.setOnItemSelectedListener(mSpinnerListener);
-    }
-
-    OnItemSelectedListener mSpinnerListener = new OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-            Log.d(TAG, mDeviceSpinner.getItemAtPosition(arg2).toString());
-            mConnectionManager.attachListeners();
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> arg0) {
-            // TODO Auto-generated method stub
-            MidiInputDevice d = getDeviceFromSpinner();
-
-            if (d == null) {
-                return;
-            }
-
-            Log.d(TAG, d.toString());
-            mConnectionManager.attachListeners();
-        }
-    };
-
     PixmobDeviceListener mPixmobListener = new PixmobDeviceListener() {
         @Override
         public void onDevicePlayed(@NonNull MidiInputDevice sender, int channel, int note, int velocity, boolean noteOn) {
@@ -304,57 +251,10 @@ public class PianoActivity extends Activity {
         }
 
         @Override
-        public void onDeviceConnected(@NonNull MidiInputDevice midiInputDevice) {
-            super.onDeviceConnected(midiInputDevice);
-            updateDevicesAdapter(midiInputDevice, true);
-        }
-
-        @Override
-        public void onDeviceDisconnected(@NonNull MidiInputDevice midiInputDevice) {
-            super.onDeviceDisconnected(midiInputDevice);
-            updateDevicesAdapter(midiInputDevice, false);
-        }
-
-        @Override
         public void onLog(String text) {
             Log.d(TAG, text);
         }
     };
-
-    private void updateDevicesAdapter(final MidiInputDevice device, final boolean isConnected) {
-        Log.d(TAG, "updateDevicesAdapter() is called.");
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                /*
-                 * Try to remove even if we are adding, to make sure it isn't there twice.
-                 */
-                mDeviceAdapter.remove(device);
-
-                if (isConnected) {
-                    mDeviceAdapter.add(device);
-                }
-
-                mDeviceAdapter.notifyDataSetChanged();
-            }
-        });
-    }
-
-    MidiInputDevice getDeviceFromSpinner() {
-        if (mDeviceSpinner != null &&
-                mDeviceSpinner.getSelectedItemPosition() >= 0 &&
-                mDeviceAdapter != null &&
-                !mDeviceAdapter.isEmpty()) {
-
-            MidiInputDevice device = mDeviceAdapter.getItem(mDeviceSpinner.getSelectedItemPosition());
-
-            if (device != null) {
-                return device;
-            }
-        }
-
-        return null;
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

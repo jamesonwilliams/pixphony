@@ -21,43 +21,33 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
 
-        <TextView
-            android:layout_gravity="center_vertical"
+        <ImageView
+            android:id="@+id/logo_above_piano"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:text="MIDI Device:"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:paddingTop="15dp"
+            android:paddingBottom="5dp"
+            android:src="@drawable/logo"
             />
 
-        <Spinner
-            android:id="@+id/deviceNameSpinner"
-            android:layout_gravity="center_vertical"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:minWidth="80dp"
-            android:spinnerMode="dropdown"
-            />
-
-        <Button
-            android:id="@+id/disconnectButton"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="Disconnect"
-            />
-
-        <Button
+        <ImageButton
             android:id="@+id/settingsButton"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:text="Settings"
+            android:layout_margin="10dp"
+            android:src="@drawable/settings_gear"
             />
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:orientation="horizontal"
