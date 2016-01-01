@@ -22,7 +22,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory 
-        android:title="@string/instrument_preference" >
+        android:title="@string/keyboard_preference" >
 
         <ListPreference
             android:key="sample_preference"
@@ -32,6 +32,20 @@
             android:defaultValue="@string/sample_default_value"
             android:title="@string/sample_preference_title">
         </ListPreference>
+
+        <CheckBoxPreference
+            android:key="sustain_notes_preference"
+            android:title="@string/sustain_notes_title"
+            android:defaultValue="true"
+            android:summary="@string/sustain_notes_summary">
+        </CheckBoxPreference>
+
+        <CheckBoxPreference
+            android:key="monophonic_touch_preference"
+            android:title="@string/monophonic_touch_title"
+            android:defaultValue="false"
+            android:summary="@string/monophonic_touch_summary">
+        </CheckBoxPreference>
 
     </PreferenceCategory>
 

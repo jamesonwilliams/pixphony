@@ -21,6 +21,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -31,7 +32,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import jp.kshoji.blemidi.device.MidiInputDevice;
@@ -42,10 +42,9 @@ import org.nosemaj.pixphony.ble.PixmobConnectionManager;
 import org.nosemaj.pixphony.ble.PixmobDeviceListener;
 import org.nosemaj.pixphony.music.Instruments;
 import org.nosemaj.pixphony.music.SoundPlayer;
-import org.nosemaj.pixphony.util.ButtonLayout;
-import org.nosemaj.pixphony.util.InstrumentLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class PianoActivity extends Activity {
     private static final String TAG = PianoActivity.class.getName();
@@ -55,7 +54,22 @@ public class PianoActivity extends Activity {
 
     private boolean mBleInitialized = false;
 
-    private InstrumentLayout pianoInstrument = null;
+    private ArrayList<ImageButton> mWhiteKeys = 
+        new ArrayList<ImageButton>();
+    private ArrayList<ImageButton> mBlackKeys = 
+        new ArrayList<ImageButton>();
+
+    /*
+     * To process touch events on a key.
+     */
+    private Rect mViewCoordinates = new Rect();
+    private int[] mViewLocation = new int[2];
+
+    /*
+     * Support a couple of play modes on the piano.
+     */
+    private boolean mSustain = true;
+    private boolean mMonophonic = false;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -77,6 +91,7 @@ public class PianoActivity extends Activity {
     public void onResume() {
         super.onResume();
         setupSoundPlayer();
+        setKeyboardPreferences();
     }
 
     private void setupSoundPlayer() {
@@ -84,17 +99,23 @@ public class PianoActivity extends Activity {
 
         mSoundPlayer = ((PixphonyApplication)getApplicationContext()).getSoundPlayer();
         mSoundPlayer.setMappedInstrument(Instruments.get(Instruments.PIANO));
-
-        setPreferredSample();
     }
 
-    private void setPreferredSample() {
+    private void setKeyboardPreferences() {
         SharedPreferences sharedPreferences =
             PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
         final String preferredSample =
             sharedPreferences.getString("sample_preference", null); 
-
         mSoundPlayer.setSample(preferredSample);
+
+        final boolean monophonicPreference = 
+            sharedPreferences.getBoolean("monophonic_touch_preference", false);
+        mMonophonic = monophonicPreference;
+
+        final boolean sustainPreference = 
+            sharedPreferences.getBoolean("sustain_notes_preference", true);
+        mSustain = sustainPreference;
     }
 
 
@@ -136,110 +157,133 @@ public class PianoActivity extends Activity {
     }
 
     private void setupKeys() {
-        pianoInstrument = new InstrumentLayout(
-            new ButtonLayout[] {
-                new ButtonLayout(0, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white1_f_53)),
-                new ButtonLayout(2, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white2_g_55)),
-                new ButtonLayout(4, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white3_a_57)),
-                new ButtonLayout(6, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white4_b_59)),
-                new ButtonLayout(7, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white5_c_60)),
-                new ButtonLayout(9, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white6_g_62)),
-                new ButtonLayout(11, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white7_e_64)),
-                new ButtonLayout(12, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white8_f_65)),
-                new ButtonLayout(14, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white9_g_67)),
-                new ButtonLayout(16, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white10_a_69)),
-                new ButtonLayout(18, ButtonLayout.KeyUnPressed, R.drawable.white, R.drawable.white_pressed, (ImageButton) findViewById(R.id.white11_b_71)),
-                new ButtonLayout(1, ButtonLayout.KeyUnPressed, R.drawable.black, R.drawable.black_pressed, (ImageButton) findViewById(R.id.black1_f_gb_54)),
-                new ButtonLayout(3, ButtonLayout.KeyUnPressed, R.drawable.black, R.drawable.black_pressed, (ImageButton) findViewById(R.id.black2_g_ab_56)),
-                new ButtonLayout(5, ButtonLayout.KeyUnPressed, R.drawable.black, R.drawable.black_pressed, (ImageButton) findViewById(R.id.black3_a_bb_58)),
-                new ButtonLayout(8, ButtonLayout.KeyUnPressed, R.drawable.black, R.drawable.black_pressed, (ImageButton) findViewById(R.id.black4_c_db_61)),
-                new ButtonLayout(10, ButtonLayout.KeyUnPressed, R.drawable.black, R.drawable.black_pressed, (ImageButton) findViewById(R.id.black5_d_eb_63)),
-                new ButtonLayout(13, ButtonLayout.KeyUnPressed, R.drawable.black, R.drawable.black_pressed, (ImageButton) findViewById(R.id.black6_f_gb_66)),
-                new ButtonLayout(15, ButtonLayout.KeyUnPressed, R.drawable.black, R.drawable.black_pressed, (ImageButton) findViewById(R.id.black7_g_ab_68)),
-                new ButtonLayout(17, ButtonLayout.KeyUnPressed, R.drawable.black, R.drawable.black_pressed, (ImageButton) findViewById(R.id.black8_a_bb_70))
-            });
+        final int whiteKeys[] = {
+            R.id.white1_f_53, R.id.white2_g_55, R.id.white3_a_57,
+            R.id.white4_b_59, R.id.white5_c_60, R.id.white6_g_62,
+            R.id.white7_e_64, R.id.white8_f_65, R.id.white9_g_67,
+            R.id.white10_a_69, R.id.white11_b_71,
+        };
 
-        LinearLayout keypadLayout = (LinearLayout) findViewById(R.id.keypadLayout);
-        int currentWhiteKeys = 11;
-        keypadLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        int btnWidth = metrics.widthPixels / (currentWhiteKeys);
-        int btnHeight = metrics.heightPixels;
-        int btnMinWidth = 80;
+        final int blackKeys[] = {
+            R.id.black1_f_gb_54, R.id.black2_g_ab_56,
+            R.id.black3_a_bb_58, R.id.black4_c_db_61,
+            R.id.black5_d_eb_63, R.id.black6_f_gb_66,
+            R.id.black7_g_ab_68, R.id.black8_a_bb_70,
+        };
 
-        for (int i = 0; i < pianoInstrument.buttonCollections.length && i < currentWhiteKeys; i++) {
-            pianoInstrument.buttonCollections[i].keyButton.setOnTouchListener(mToneTouchListener);
-            pianoInstrument.buttonCollections[i].keyButton.setTag(pianoInstrument.buttonCollections[i].idToButtonMap);
-            ViewGroup.LayoutParams lp = pianoInstrument.buttonCollections[i].keyButton.getLayoutParams();
-            lp.width = btnWidth;
-            pianoInstrument.buttonCollections[i].keyButton.setLayoutParams(lp);
+        for (int id : whiteKeys) {
+            ImageButton b = (ImageButton) findViewById(id);
+            mWhiteKeys.add(b);
+            b.setOnTouchListener(mToneTouchListener);
         }
 
-        int blackBtnWidth = (btnWidth * 2) / 3;
-        int blackBtnHeight = (btnHeight * 4) / 10;
-
-        // black keys on top.
-        for (int i = currentWhiteKeys; i < pianoInstrument.buttonCollections.length; i++) {
-            pianoInstrument.buttonCollections[i].keyButton.setOnTouchListener(mToneTouchListener);
-            pianoInstrument.buttonCollections[i].keyButton.setTag(pianoInstrument.buttonCollections[i].idToButtonMap);
-
-            RelativeLayout.LayoutParams lp1 = (RelativeLayout.LayoutParams) pianoInstrument.buttonCollections[i].keyButton.getLayoutParams();
-            lp1.height = blackBtnHeight;
-            lp1.width = blackBtnWidth;
-            lp1.setMargins(-(blackBtnWidth / 2), 0, 0, 0);
-            pianoInstrument.buttonCollections[i].keyButton.setLayoutParams(lp1);
+        for (int id : blackKeys) {
+            ImageButton b = (ImageButton) findViewById(id);
+            mBlackKeys.add(b);
+            b.setOnTouchListener(mToneTouchListener);
         }
-
     }
 
+    private boolean isInView(View view, MotionEvent ev) {
+        view.getDrawingRect(mViewCoordinates);
+        view.getLocationOnScreen(mViewLocation);
+        mViewCoordinates.offset(mViewLocation[0], mViewLocation[1]);
+        return mViewCoordinates.contains((int)ev.getX(), (int)ev.getY());
+    }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-
-        int lastPressedKey = pianoInstrument.HandleSwipeEventsInLayout(event);
-
-        if( lastPressedKey != -1 && lastPressedKey >= 0 && lastPressedKey < pianoInstrument.buttonCollections.length ) {
-            int noteBase = Instruments.PIXMOB_PIANO_LOWEST_MIDI_NOTE;
-            /* TODO: May be improve this to get base note from an API */
-            mSoundPlayer.stop();
-            mSoundPlayer.playMidiNote(pianoInstrument.buttonCollections[lastPressedKey].idToButtonMap + noteBase);
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        for (ImageButton b : mBlackKeys) {
+            if (isInView(b, ev)) {
+                return b.dispatchTouchEvent(ev);
+            }
         }
-        return super.dispatchTouchEvent(event);
+
+        for (ImageButton b : mWhiteKeys) {
+            if (isInView(b, ev)) {
+                return b.dispatchTouchEvent(ev);
+            }
+        }
+
+        return super.dispatchTouchEvent(ev);
+    }
+
+    private void setKeyPressed(ImageButton b) {
+        if (mWhiteKeys.contains(b)) {
+            b.setImageResource(R.drawable.white_pressed);
+        } else {
+            b.setImageResource(R.drawable.black_pressed);
+        }
+    }
+
+    private void unsetKeyPressed(ImageButton b) {
+        if (mWhiteKeys.contains(b)) {
+            b.setImageResource(R.drawable.white);
+        } else {
+            b.setImageResource(R.drawable.black);
+        }
+    }
+
+    private void releaseAllKeys() {
+        for (ImageButton b : mWhiteKeys) {
+            b.setImageResource(R.drawable.white);
+        }
+
+        for (ImageButton b : mBlackKeys) {
+            b.setImageResource(R.drawable.black);
+        }
     }
 
     View.OnTouchListener mToneTouchListener = new View.OnTouchListener() {
+        private HashMap<Integer,Integer> mLastNoteForPointer =
+                new HashMap<Integer,Integer>();
+
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if (!(v instanceof ImageButton)) {
-                return false;
+            // get pointer index from the event object
+            int pointerIndex = event.getActionIndex();
+
+            // get pointer ID
+            int pointerId = event.getPointerId(pointerIndex);
+
+            // get masked (not specific to a pointer) action
+            int maskedAction = event.getActionMasked();
+
+            int note = Integer.parseInt((String)v.getTag());
+
+            final Integer lastNoteInteger = mLastNoteForPointer.get(pointerId);
+            final int lastNote = (lastNoteInteger == null) ? -1 : lastNoteInteger.intValue();
+
+            if (note != lastNote) {
+                releaseAllKeys();
             }
 
-            ImageButton key = (ImageButton) v;
-            Object tag = key.getTag();
+            if (maskedAction == MotionEvent.ACTION_DOWN ||
+                   maskedAction == MotionEvent.ACTION_POINTER_DOWN ||
+                   lastNote != note) {
 
-            if (tag == null || !(tag instanceof Integer)) {
-                return false; 
+                setKeyPressed((ImageButton)v);
+
+                if (mMonophonic || !mSustain) {
+                    mSoundPlayer.stop(lastNote);
+                }
+
+                mSoundPlayer.playMidiNote(note);
+                mLastNoteForPointer.put(pointerId, note);
+            }
+            
+            if (maskedAction == MotionEvent.ACTION_POINTER_UP ||
+                   maskedAction == MotionEvent.ACTION_UP ||
+                   maskedAction == MotionEvent.ACTION_CANCEL) {
+
+                unsetKeyPressed((ImageButton)v);
+
+                if (!mSustain) {
+                    mSoundPlayer.stop(note);
+                }
             }
 
-            int index = (Integer) tag;
-            int note = 53 +  index;
-
-            Log.d(TAG, "onTouch() with note = " + note);
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    mSoundPlayer.stop();
-                    mSoundPlayer.playMidiNote(note);
-                    pianoInstrument.ShowPressKeyForTone(index);
-                    break;
-    
-                default:
-                    // do nothing.
-                    break;
-            }
-
-            return false;
+            return true;
         }
     };
 

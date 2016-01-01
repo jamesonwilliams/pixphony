@@ -33,8 +33,14 @@
     <string name="title_activity_debug">Debug</string>
     <string name="summary_activity_debug">Event Log, etc.</string>
 
-    <string name="instrument_preference">Instruments</string>
+    <string name="keyboard_preference">Keyboard</string>
     <string name="sample_names_summary">Instrument sample used by keyboard</string>
     <string name="sample_preference_title">Sample Sound</string>
     <string name="sample_default_value">piano_c</string>
+
+    <string name="sustain_notes_title">Sustain</string>
+    <string name="sustain_notes_summary">Notes play after lifting finger</string>
+
+    <string name="monophonic_touch_title">Monophonic</string>
+    <string name="monophonic_touch_summary">Only play one sound at a time</string>
 </resources>
