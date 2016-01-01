@@ -35,6 +35,7 @@ public class SoundPlayer {
     private SoundPool mSoundPool = null;
     private int mSoundId = 0;
     private int mStreamId = 0;
+    private boolean isLoaded = false;
 
     private Instrument mMappedInstrument = null;
 
@@ -68,6 +69,10 @@ public class SoundPlayer {
     }
 
     public void playMidiNote(int midiNote) {
+        if (!isLoaded) {
+            return;
+        }
+
         /*
          * One at a time, boys.
          */
@@ -83,14 +88,22 @@ public class SoundPlayer {
         }
     }
 
+    public synchronized void load(int resourceId) {
+        if (isLoaded) {
+            mSoundPool.unload(mSoundId);
+            isLoaded = false;
+        }
+
+        mSoundId = mSoundPool.load(sContext, resourceId, 1);
+        isLoaded = true;
+    }
+
     public void setMappedInstrument(Instrument instrument) {
         mMappedInstrument = instrument;
-        mSoundPool.unload(mSoundId);
-        mSoundId = mSoundPool.load(sContext, mMappedInstrument.getDefaultSample(), 1);
+        load(mMappedInstrument.getDefaultSample());
     }
 
     public void setSample(int resourceId) {
-        mSoundPool.unload(mSoundId);
-        mSoundId = mSoundPool.load(sContext, resourceId, 1);
+        load(resourceId);
     }
 }
