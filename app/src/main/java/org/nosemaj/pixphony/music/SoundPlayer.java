@@ -17,8 +17,9 @@
 package org.nosemaj.pixphony.music;
 
 import android.content.Context;
-import android.media.AudioAttributes;
+import android.content.res.Resources;
 import android.media.AudioAttributes.Builder;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
@@ -103,7 +104,29 @@ public class SoundPlayer {
         load(mMappedInstrument.getDefaultSample());
     }
 
-    public void setSample(int resourceId) {
-        load(resourceId);
+    public void setSample(String sampleName) {
+        if (sampleName == null) {
+            return;
+        }
+
+        final int sampleId = lookupSampleId(sampleName);
+
+        if (sampleId != 0) {
+            load(sampleId);
+        }
+    }
+
+    /*
+     * Bug in Android, can't get int type back from a list preference.
+     * So need to do all this craziness. Since anyone who wants to load
+     * a sample has to do it, it made most sense to put behind an API in
+     * the SoundPlayer, but jesus h. christ. See
+     *
+     * https://code.google.com/p/android/issues/detail?id=2096
+     */
+    private int lookupSampleId(String name) {
+        Resources resources = sContext.getResources();
+        return resources.getIdentifier(name, "raw", sContext.getPackageName());
     }
 }
+

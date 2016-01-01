@@ -21,7 +21,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -80,38 +79,24 @@ public class PianoActivity extends Activity {
         setupSoundPlayer();
     }
 
-    private int lookupSampleId(String name) {
-        Resources resources = getBaseContext().getResources();
-        return resources.getIdentifier(name, "raw", 
-           getBaseContext().getPackageName());
-    }
-    /*
-     * Bug in Android, can't get int type back from a list preference.
-     * So do all this craziness. See
-     * https://code.google.com/p/android/issues/detail?id=2096
-     */
     private void setupSoundPlayer() {
-        SharedPreferences sharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        final int defaultSampleId =
-            Instruments.get(Instruments.PIANO).getDefaultSample();
-        final String preferredSample 
-            = sharedPreferences.getString("sample_preference", null); 
-        int preferredSampleId = defaultSampleId;
-
-        if (preferredSample != null) {
-            final int lookupId = lookupSampleId(preferredSample);
-            if (lookupId != 0) {
-                preferredSampleId = lookupId;
-            }
-        }
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         mSoundPlayer = ((PixphonyApplication)getApplicationContext()).getSoundPlayer();
         mSoundPlayer.setMappedInstrument(Instruments.get(Instruments.PIANO));
-        mSoundPlayer.setSample(preferredSampleId);
 
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        setPreferredSample();
     }
+
+    private void setPreferredSample() {
+        SharedPreferences sharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        final String preferredSample =
+            sharedPreferences.getString("sample_preference", null); 
+
+        mSoundPlayer.setSample(preferredSample);
+    }
+
 
     private void setupBleMidi() {
         mConnectionManager = ((PixphonyApplication)getApplicationContext()).getConnectionManager();

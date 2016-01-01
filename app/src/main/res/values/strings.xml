@@ -36,4 +36,5 @@
     <string name="instrument_preference">Instruments</string>
     <string name="sample_names_summary">Instrument sample used by keyboard</string>
     <string name="sample_preference_title">Sample Sound</string>
+    <string name="sample_default_value">piano_c</string>
 </resources>

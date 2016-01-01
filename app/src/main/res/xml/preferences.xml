@@ -29,6 +29,7 @@
             android:entries="@array/sample_names"
             android:summary="@string/sample_names_summary"
             android:entryValues="@array/sample_resources"
+            android:defaultValue="@string/sample_default_value"
             android:title="@string/sample_preference_title">
         </ListPreference>
 

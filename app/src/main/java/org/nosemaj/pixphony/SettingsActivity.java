@@ -17,9 +17,13 @@
 package org.nosemaj.pixphony;
 
 import android.os.Bundle;
+import android.preference.ListPreference;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 
 import org.nosemaj.pixphony.R;
+import org.nosemaj.pixphony.music.SoundPlayer;
 
 /*
  * https://developer.android.com/guide/topics/ui/settings.html#Activity
@@ -29,5 +33,25 @@ public class SettingsActivity extends PreferenceActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
+        setupListPreferenceListener();
     }
+
+    private void setupListPreferenceListener() {
+        final ListPreference samplePreference = 
+            (ListPreference) findPreference("sample_preference");
+        samplePreference.setOnPreferenceChangeListener(mListener);
+    }
+
+    private OnPreferenceChangeListener mListener = new OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            SoundPlayer soundPlayer = 
+                ((PixphonyApplication)getApplicationContext()).getSoundPlayer();
+
+            soundPlayer.setSample((String)newValue);
+
+            return true;
+        }
+    };
 }
+
