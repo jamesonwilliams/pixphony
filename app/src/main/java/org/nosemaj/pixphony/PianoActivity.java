@@ -107,7 +107,9 @@ public class PianoActivity extends Activity {
 
         final String preferredSample =
             sharedPreferences.getString("sample_preference", null); 
-        mSoundPlayer.setSample(preferredSample);
+        if (preferredSample != null) {
+            mSoundPlayer.setMappedInstrument(Instruments.get(preferredSample));
+        }
 
         final boolean monophonicPreference = 
             sharedPreferences.getBoolean("monophonic_touch_preference", false);

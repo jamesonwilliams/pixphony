@@ -39,10 +39,6 @@ public class SoundPlayer {
     private static Context sContext = null;
 
     private SoundPool mSoundPool = null;
-    private HashMap<Integer,Integer> mSoundIdMap = new HashMap<Integer,Integer>();
-    private HashMap<Integer,Integer> mStreamIdMap = new HashMap<Integer, Integer>();
-    private boolean isLoaded = false;
-
     private Instrument mMappedInstrument = null;
 
     private SoundPlayer(Context context) {
@@ -76,7 +72,7 @@ public class SoundPlayer {
 
     public void playMidiNote(int midiNote) {
         Log.d(TAG, "playMidiNote(" + midiNote + ")");
-        if (!isLoaded) {
+        if (!mMappedInstrument.isLoaded()) {
             return;
         }
 
@@ -84,10 +80,10 @@ public class SoundPlayer {
          * One at a time, boys.
          */
         stop(midiNote);
-        final int soundId = getIntSafe(mSoundIdMap, midiNote, 0);
+        final int soundId = getIntSafe(mMappedInstrument.getSoundIdMap(), midiNote, 0);
         final int streamId = mSoundPool.play(soundId, 1f, 1f, 1, 0, 
                                 mMappedInstrument.getPlaybackRate(midiNote));
-        mStreamIdMap.put(midiNote, streamId);
+        mMappedInstrument.getStreamIdMap().put(midiNote, streamId);
     }
 
     private int getIntSafe(HashMap<Integer,Integer> map, int key, int defaultValue) {
@@ -96,69 +92,43 @@ public class SoundPlayer {
     }
 
     public void stop(int midiNote) {
-        final int streamId = getIntSafe(mStreamIdMap, midiNote, 0);
+        final int streamId = getIntSafe(mMappedInstrument.getStreamIdMap(), midiNote, 0);
         if (0 != streamId) {
             mSoundPool.stop(streamId);
-            mStreamIdMap.put(midiNote, 0);
+            mMappedInstrument.getStreamIdMap().put(midiNote, 0);
         }
     }
 
     public void stop() {
         int streamId = 0;
         for (int i = 53; i <= 71; i++) {
-            streamId = getIntSafe(mStreamIdMap, i, 0);
+            streamId = getIntSafe(mMappedInstrument.getStreamIdMap(), i, 0);
             if (0 != streamId) { 
                 mSoundPool.stop(streamId);
-                mStreamIdMap.put(i, 0);
+                mMappedInstrument.getStreamIdMap().put(i, 0);
             }
         }
     }
 
-    public synchronized void load(int resourceId) {
-        if (isLoaded) {
-            for (int soundId : mSoundIdMap.values()) {
-                mSoundPool.unload(soundId);
-            }
-
-            isLoaded = false;
+    public synchronized void load() {
+        if (mMappedInstrument.isLoaded()) {
+            return;
         }
 
         for (int i = 53; i <= 71; i++) {
-            int soundId = mSoundPool.load(sContext, resourceId, 1);
-            mSoundIdMap.put(i, soundId);
+            int soundId = mSoundPool.load(sContext, mMappedInstrument.getDefaultSample(), 1);
+            mMappedInstrument.getSoundIdMap().put(i, soundId);
+            mMappedInstrument.setLoaded(true);
         }
-
-        isLoaded = true;
     }
 
     public void setMappedInstrument(Instrument instrument) {
         mMappedInstrument = instrument;
-        load(mMappedInstrument.getDefaultSample());
+        load();
     }
 
-    public void setSample(String sampleName) {
-        if (sampleName == null) {
-            return;
-        }
-
-        final int sampleId = lookupSampleId(sampleName);
-
-        if (sampleId != 0) {
-            load(sampleId);
-        }
-    }
-
-    /*
-     * Bug in Android, can't get int type back from a list preference.
-     * So need to do all this craziness. Since anyone who wants to load
-     * a sample has to do it, it made most sense to put behind an API in
-     * the SoundPlayer, but jesus h. christ. See
-     *
-     * https://code.google.com/p/android/issues/detail?id=2096
-     */
-    private int lookupSampleId(String name) {
-        Resources resources = sContext.getResources();
-        return resources.getIdentifier(name, "raw", sContext.getPackageName());
+    public void terminate() {
+        mSoundPool.release();
     }
 }
 

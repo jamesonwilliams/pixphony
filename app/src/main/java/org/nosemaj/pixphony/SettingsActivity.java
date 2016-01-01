@@ -24,6 +24,7 @@ import android.preference.PreferenceActivity;
 
 import org.nosemaj.pixphony.R;
 import org.nosemaj.pixphony.music.SoundPlayer;
+import org.nosemaj.pixphony.music.Instruments;
 
 /*
  * https://developer.android.com/guide/topics/ui/settings.html#Activity
@@ -48,7 +49,7 @@ public class SettingsActivity extends PreferenceActivity {
             SoundPlayer soundPlayer = 
                 ((PixphonyApplication)getApplicationContext()).getSoundPlayer();
 
-            soundPlayer.setSample((String)newValue);
+            soundPlayer.setMappedInstrument(Instruments.get((String)newValue));
 
             return true;
         }

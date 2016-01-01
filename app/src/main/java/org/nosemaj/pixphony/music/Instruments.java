@@ -21,40 +21,64 @@ import org.nosemaj.pixphony.R;
 public class Instruments {
     public static final int PANFLUTE = 1;
     public static final int PIANO = 2;
+    public static final int SYNTH = 3;
+    public static final int BASS_SYNTH = 4;
 
-    public static final int PIXMOB_LOWEST_MIDI_NOTE = 55;
-    public static final int PIXMOB_PIANO_LOWEST_MIDI_NOTE = 53;
+    public static final int PIXMOB_LOWEST_MIDI_NOTE = 53;
 
     private static Instrument mPanflute = new Instrument(R.raw.panflute_d) {
         @Override
         public float getPlaybackRate(int midiNote) {
-            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE + 2);
-        }
-
-        @Override
-        public int getBaseNote() {
-            return PIXMOB_LOWEST_MIDI_NOTE;
+            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE);
         }
     };
 
     private static Instrument mPiano = new Instrument(R.raw.piano_c) {
         @Override
         public float getPlaybackRate(int midiNote) {
-            /* TODO: this is a hack and a bug and needs to be fixed. */
-            return FrequencyTable.get(midiNote - PIXMOB_PIANO_LOWEST_MIDI_NOTE);
-        }
-        @Override
-        public int getBaseNote() {
-            return PIXMOB_PIANO_LOWEST_MIDI_NOTE;
+            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE);
         }
     };
 
-    public static Instrument get(int instrument) {
-        switch (instrument) {
-            case PANFLUTE:
+    private static Instrument mSynthesizer = new Instrument(R.raw.synth_c) {
+        @Override
+        public float getPlaybackRate(int midiNote) {
+            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE);
+        }
+    };
+
+    private static Instrument mBassSynth = new Instrument(R.raw.moog_e) {
+        @Override
+        public float getPlaybackRate(int midiNote) {
+            return FrequencyTable.get(midiNote - PIXMOB_LOWEST_MIDI_NOTE);
+        }
+    };
+
+    public static Instrument get(String sampleName) {
+        switch (sampleName) {
+            case "piano_c":
+                return mPiano;
+            case "panflute_d":
                 return mPanflute;
+            case "synth_c":
+                return mSynthesizer;
+            case "moog_e":
+                return mBassSynth;
+            default:
+                return null;
+        }
+    }
+
+    public static Instrument get(int instrumentType) {
+        switch (instrumentType) {
             case PIANO:
                 return mPiano;
+            case PANFLUTE:
+                return mPanflute;
+            case SYNTH:
+                return mSynthesizer;
+            case BASS_SYNTH:
+                return mBassSynth;
             default:
                 return null;
         }

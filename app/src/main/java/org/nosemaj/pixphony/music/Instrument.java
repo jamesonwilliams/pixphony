@@ -16,7 +16,13 @@
 
 package org.nosemaj.pixphony.music;
 
+import java.util.HashMap;
+
 public abstract class Instrument {
+    private HashMap<Integer,Integer> mSoundIdMap = new HashMap<Integer,Integer>();
+    private HashMap<Integer,Integer> mStreamIdMap = new HashMap<Integer, Integer>();
+
+    private boolean mLoaded = false;
     private int mSample;
 
     public int getDefaultSample() {
@@ -28,5 +34,20 @@ public abstract class Instrument {
     }
 
     public abstract float getPlaybackRate(int midiNote);
-    public abstract int getBaseNote();
+
+    public boolean isLoaded() {
+        return mLoaded;
+    }
+
+    public void setLoaded(boolean loaded) {
+        mLoaded = loaded;
+    }
+
+    public HashMap<Integer,Integer> getSoundIdMap() {
+        return mSoundIdMap;
+    }
+
+    public HashMap<Integer,Integer> getStreamIdMap() {
+        return mStreamIdMap;
+    }
 }
