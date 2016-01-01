@@ -65,7 +65,7 @@ public class DebugActivity extends Activity {
         Log.d(TAG, "onCreate()");
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_debug);
 
         setupListView();
         setupSpinner();
