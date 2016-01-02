@@ -35,6 +35,9 @@
     <string name="summary_activity_debug">Event Log, etc.</string>
     -->
 
+    <string name="preference_header_text">Alpha Release</string>
+    <string name="ble_header_text">Auto-connected devices. Click to disconnect.</string>
+
     <string name="ble_preference">MIDI Over BLE</string>
     <string name="title_activity_ble_list">Bluetooth LE Devices</string>
     <string name="summary_activity_ble_list">Connect to an Intel Pixmob device</string>

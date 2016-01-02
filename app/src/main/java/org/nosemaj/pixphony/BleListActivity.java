@@ -156,7 +156,10 @@ public class BleListActivity extends Activity {
         
             final MidiInputDevice item = (MidiInputDevice) parent.getItemAtPosition(position);
 
-            Log.d(TAG, item.toString() + " has been clicked.");
+            if (mConnectionManager != null &&
+                    mConnectionManager.isInitialized()) {
+                mConnectionManager.disconnectDevice(item);
+            }
         }
     };
 }
