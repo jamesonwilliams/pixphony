@@ -89,7 +89,10 @@ public class PianoActivity extends Activity {
         super.onResume();
         setupSoundPlayer();
         setKeyboardPreferences();
-        mConnectionManager.setPixmobDeviceListener(mPixmobListener);
+        if (mConnectionManager != null &&
+                mConnectionManager.isInitialized()) {
+            mConnectionManager.setPixmobDeviceListener(mPixmobListener);
+        }
     }
 
     private void setupSoundPlayer() {

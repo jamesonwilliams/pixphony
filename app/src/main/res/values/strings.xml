@@ -27,22 +27,27 @@
     <string name="notify_enable_ble">Bluetooth is now turned on.</string>
     <string name="notify_ble_not_available">Bluetooth is not available.</string>
 
+    <!--
     <string name="activity_preference_title">Activity</string>
     <string name="title_activity_piano">Keyboard</string>
     <string name="summary_activity_piano">Playable Keyboard</string>
     <string name="title_activity_debug">Debug</string>
     <string name="summary_activity_debug">Event Log, etc.</string>
-    <string name="title_activity_ble_list">MIDI over BLE</string>
-    <string name="summary_activity_ble_list">Connect to MIDI over BLE Devices</string>
+    -->
 
-    <string name="keyboard_preference">Keyboard</string>
-    <string name="sample_names_summary">Instrument sample used by keyboard</string>
-    <string name="sample_preference_title">Sample Sound</string>
+    <string name="ble_preference">MIDI Over BLE</string>
+    <string name="title_activity_ble_list">Bluetooth LE Devices</string>
+    <string name="summary_activity_ble_list">Connect to an Intel Pixmob device</string>
+
+    <string name="instrument_preference">Instrument Selection</string>
+    <string name="sample_preference_title">Samples</string>
+    <string name="sample_names_summary">Instrument sound used by sampler</string>
     <string name="sample_default_value">piano_c</string>
 
+    <string name="keyboard_preference">Keyboard Settings</string>
     <string name="sustain_notes_title">Sustain</string>
-    <string name="sustain_notes_summary">Notes play after lifting finger</string>
-
+    <string name="sustain_notes_summary">Notes continue after lifting finger</string>
     <string name="monophonic_touch_title">Monophonic</string>
     <string name="monophonic_touch_summary">Only play one sound at a time</string>
+
 </resources>

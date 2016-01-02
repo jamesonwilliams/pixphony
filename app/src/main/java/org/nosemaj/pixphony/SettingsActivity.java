@@ -22,6 +22,8 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 
+import jp.kshoji.blemidi.util.BleUtils;
+
 import org.nosemaj.pixphony.R;
 import org.nosemaj.pixphony.ble.PixmobConnectionManager;
 import org.nosemaj.pixphony.music.Instruments;
@@ -51,6 +53,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         sConnectionManager.startScan();
         */
+        disableBleOptionIfNotPresent();
     }
 
     @Override
@@ -79,5 +82,23 @@ public class SettingsActivity extends PreferenceActivity {
             return true;
         }
     };
+
+    private void disableBleOptionIfNotPresent() {
+        if (checkForBle()) {
+            return;
+        }
+    
+        getPreferenceScreen().findPreference("ble_preferred_device").setEnabled(false);
+    }
+
+    private boolean checkForBle() {
+        if (!BleUtils.isBluetoothEnabled(this) ||
+                !BleUtils.isBleSupported(this)) {
+            return false;
+        }
+
+        return true;
+    }
+
 }
 

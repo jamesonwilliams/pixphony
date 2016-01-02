@@ -54,7 +54,7 @@ public class PixmobConnectionManager {
         return sInstance;
     }
 
-    private boolean isInitialized() {
+    public boolean isInitialized() {
         return mIsInitialized;
     }
 

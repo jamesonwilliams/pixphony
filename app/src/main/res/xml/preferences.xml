@@ -22,8 +22,20 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory 
-        android:title="@string/keyboard_preference" >
+        android:title="@string/ble_preference" >
+        <Preference
+            android:key="ble_preferred_device"
+            android:title="@string/title_activity_ble_list"
+            android:summary="@string/summary_activity_ble_list">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="org.nosemaj.pixphony"
+                android:targetClass="org.nosemaj.pixphony.BleListActivity" />
+        </Preference>
+    </PreferenceCategory>
 
+    <PreferenceCategory 
+        android:title="@string/instrument_preference" >
         <ListPreference
             android:key="sample_preference"
             android:entries="@array/sample_names"
@@ -32,6 +44,10 @@
             android:defaultValue="@string/sample_default_value"
             android:title="@string/sample_preference_title">
         </ListPreference>
+    </PreferenceCategory>
+
+    <PreferenceCategory 
+        android:title="@string/keyboard_preference" >
 
         <CheckBoxPreference
             android:key="sustain_notes_preference"
@@ -49,6 +65,7 @@
 
     </PreferenceCategory>
 
+    <!--
     <PreferenceCategory 
         android:title="@string/activity_preference_title" >
 
@@ -68,16 +85,9 @@
                 android:targetPackage="org.nosemaj.pixphony"
                 android:targetClass="org.nosemaj.pixphony.DebugActivity" />
         </Preference>
-        <Preference
-            android:title="@string/title_activity_ble_list"
-            android:summary="@string/summary_activity_ble_list">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetPackage="org.nosemaj.pixphony"
-                android:targetClass="org.nosemaj.pixphony.BleListActivity" />
-        </Preference>
 
     </PreferenceCategory>
+    -->
 
 </PreferenceScreen>
 
