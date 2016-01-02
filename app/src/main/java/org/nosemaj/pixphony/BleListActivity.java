@@ -121,7 +121,17 @@ public class BleListActivity extends Activity {
              public void run() {
                 mDeviceAdapter.remove(bleDevice);
 
-                if (isPresent) {
+                 boolean isPresentInList = false;
+
+                 for (MidiInputDevice d : mDeviceList) {
+                     if( d.getDeviceAddress() == bleDevice.getDeviceAddress()) {
+                         isPresentInList = true;
+                         mDeviceAdapter.remove(bleDevice);
+                         mConnectionManager.disconnectDevice(bleDevice);
+                     }
+                 }
+
+                if (isPresent && !isPresentInList) {
                     mDeviceAdapter.add(bleDevice);
                 }
             }
@@ -159,6 +169,11 @@ public class BleListActivity extends Activity {
             if (mConnectionManager != null &&
                     mConnectionManager.isInitialized()) {
                 mConnectionManager.disconnectDevice(item);
+                for (MidiInputDevice d : mDeviceList) {
+                    if( d.getDeviceAddress() == item.getDeviceAddress()) {
+                        mDeviceAdapter.remove(item);
+                    }
+                }
             }
         }
     };

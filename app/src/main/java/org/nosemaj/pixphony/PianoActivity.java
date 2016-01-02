@@ -168,16 +168,34 @@ public class PianoActivity extends Activity {
             R.id.black7_g_ab_68, R.id.black8_a_bb_70,
         };
 
+        RelativeLayout keypadLayout = (RelativeLayout) findViewById(R.id.keypadLayout);
+        int currentWhiteKeys = whiteKeys.length;
+        keypadLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int btnWidth = metrics.widthPixels / (currentWhiteKeys);
+        int btnHeight = metrics.heightPixels;
+        int blackBtnWidth = (btnWidth * 2) / 3;
+        int blackBtnHeight = (btnHeight * 4) / 10;
+
         for (int id : whiteKeys) {
             ImageButton b = (ImageButton) findViewById(id);
             mWhiteKeys.add(b);
             b.setOnTouchListener(mToneTouchListener);
+            ViewGroup.LayoutParams lp = b.getLayoutParams();
+            lp.width = btnWidth;
+            b.setLayoutParams(lp);
         }
 
         for (int id : blackKeys) {
             ImageButton b = (ImageButton) findViewById(id);
             mBlackKeys.add(b);
             b.setOnTouchListener(mToneTouchListener);
+            RelativeLayout.LayoutParams lp1 = (RelativeLayout.LayoutParams) b.getLayoutParams();
+            lp1.height = blackBtnHeight;
+            lp1.width = blackBtnWidth;
+            lp1.setMargins(-(blackBtnWidth / 2), 0, 0, 0);
+            b.setLayoutParams(lp1);
         }
     }
 
@@ -207,27 +225,28 @@ public class PianoActivity extends Activity {
 
     private void setKeyPressed(ImageButton b) {
         if (mWhiteKeys.contains(b)) {
-            b.setImageResource(R.drawable.white_pressed);
+            b.setBackgroundResource(R.drawable.white_pressed);
         } else {
-            b.setImageResource(R.drawable.black_pressed);
+            b.setBackgroundResource(R.drawable.black_pressed);
         }
     }
 
     private void unsetKeyPressed(ImageButton b) {
         if (mWhiteKeys.contains(b)) {
-            b.setImageResource(R.drawable.white);
+            b.setBackgroundResource(R.drawable.white);
+
         } else {
-            b.setImageResource(R.drawable.black);
+            b.setBackgroundResource(R.drawable.black);
         }
     }
 
     private void releaseAllKeys() {
         for (ImageButton b : mWhiteKeys) {
-            b.setImageResource(R.drawable.white);
+            b.setBackgroundResource(R.drawable.white);
         }
 
         for (ImageButton b : mBlackKeys) {
-            b.setImageResource(R.drawable.black);
+            b.setBackgroundResource(R.drawable.black);
         }
     }
 

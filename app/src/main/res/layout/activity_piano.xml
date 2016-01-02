@@ -75,7 +75,6 @@
             android:padding="0dp"
             android:layout_margin="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/white"
             android:tag="53"
             />
 
@@ -92,7 +91,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/white"
             android:tag="55"
             />
 
@@ -109,7 +107,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/white"
             android:tag="57"
             />
 
@@ -126,7 +123,6 @@
             android:layout_toEndOf="@id/white3_a_57"
             android:scaleType="fitXY"
             android:background="@drawable/white"
-            android:src="@drawable/white"
             android:tag="59"
             />
 
@@ -143,7 +139,6 @@
             android:layout_toRightOf="@+id/white4_b_59"
             android:scaleType="fitXY"
             android:background="@drawable/white"
-            android:src="@drawable/white"
             android:tag="60"
             />
 
@@ -160,7 +155,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/white"
             android:tag="62"
             />
 
@@ -177,7 +171,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/white"
             android:tag="64"
             />
 
@@ -194,7 +187,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/white"
             android:tag="65"
             />
 
@@ -211,7 +203,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/white"
             android:tag="67"
             />
 
@@ -229,7 +220,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/white"
             android:tag="69"
             />
 
@@ -247,7 +237,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/white"
             android:tag="71"
             />
 
@@ -263,7 +252,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/black"
             android:tag="54"
             />
 
@@ -279,7 +267,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/black"
             android:tag="56"
             />
 
@@ -295,7 +282,6 @@
             android:layout_toRightOf="@+id/white3_a_57"
             android:background="@drawable/black"
             android:scaleType="fitXY"
-            android:src="@drawable/black"
             android:tag="58"
             />
 
@@ -311,7 +297,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/black"
             android:tag="61"
             />
 
@@ -327,7 +312,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/black"
             android:tag="63"
             />
 
@@ -343,7 +327,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/black"
             android:tag="66"
             />
 
@@ -359,7 +342,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/black"
             android:tag="68"
             />
 
@@ -375,7 +357,6 @@
             android:layout_width="wrap_content"
             android:padding="0dp"
             android:scaleType="fitXY"
-            android:src="@drawable/black"
             android:tag="70"
             />
 
