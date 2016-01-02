@@ -32,6 +32,8 @@
     <string name="summary_activity_piano">Playable Keyboard</string>
     <string name="title_activity_debug">Debug</string>
     <string name="summary_activity_debug">Event Log, etc.</string>
+    <string name="title_activity_ble_list">MIDI over BLE</string>
+    <string name="summary_activity_ble_list">Connect to MIDI over BLE Devices</string>
 
     <string name="keyboard_preference">Keyboard</string>
     <string name="sample_names_summary">Instrument sample used by keyboard</string>

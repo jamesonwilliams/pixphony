@@ -19,10 +19,7 @@ package org.nosemaj.pixphony.ble;
 import android.support.annotation.NonNull;
 
 import jp.kshoji.blemidi.device.MidiInputDevice;
-import jp.kshoji.blemidi.device.MidiOutputDevice;
 import jp.kshoji.blemidi.listener.OnMidiInputEventListener;
-import jp.kshoji.blemidi.listener.OnMidiDeviceAttachedListener;
-import jp.kshoji.blemidi.listener.OnMidiDeviceDetachedListener;
 
 import java.util.Arrays;
 
@@ -31,9 +28,7 @@ import java.util.Arrays;
  * implementation layer so we don't have to implement all of these
  * elsewhere in our main logic.
  */
-public class BleMidiEventListener implements OnMidiInputEventListener, 
-       OnMidiDeviceAttachedListener, OnMidiDeviceDetachedListener {
-
+public class BleMidiEventListener implements OnMidiInputEventListener {
     /*
      * By default, don't log. Override me to log somewhere.
      */
@@ -138,26 +133,6 @@ public class BleMidiEventListener implements OnMidiInputEventListener,
     @Override
     public void onNRPNMessage(@NonNull MidiInputDevice sender, int channel, int function, int value) {
         onLog("NRPN message from: " + sender.getDeviceName() + ", channel: " + channel + ", function: " + function + ", value: " + value);
-    }
-
-    @Override
-    public void onMidiInputDeviceAttached(@NonNull MidiInputDevice midiInputDevice) {
-        onLog("onMidiInputDeviceAttached(" + midiInputDevice.getDeviceName() + ")");
-    }
-
-    @Override
-    public void onMidiOutputDeviceAttached(@NonNull MidiOutputDevice midiOutputDevice) {
-        onLog("onMidiOutputDeviceAttached(" + midiOutputDevice.getDeviceName() + ")");
-    }
-
-    @Override
-    public void onMidiInputDeviceDetached(@NonNull MidiInputDevice midiInputDevice) {
-        onLog("onMidiInputDeviceDetached(" + midiInputDevice.getDeviceName() + ")");
-    }
-
-    @Override
-    public void onMidiOutputDeviceDetached(@NonNull MidiOutputDevice midiOutputDevice) {
-        onLog("onMidiOutputDeviceDetached(" + midiOutputDevice.getDeviceName() + ")");
     }
 }
 

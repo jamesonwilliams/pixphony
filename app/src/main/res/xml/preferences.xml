@@ -68,6 +68,14 @@
                 android:targetPackage="org.nosemaj.pixphony"
                 android:targetClass="org.nosemaj.pixphony.DebugActivity" />
         </Preference>
+        <Preference
+            android:title="@string/title_activity_ble_list"
+            android:summary="@string/summary_activity_ble_list">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="org.nosemaj.pixphony"
+                android:targetClass="org.nosemaj.pixphony.BleListActivity" />
+        </Preference>
 
     </PreferenceCategory>
 

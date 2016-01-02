@@ -23,18 +23,43 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 
 import org.nosemaj.pixphony.R;
-import org.nosemaj.pixphony.music.SoundPlayer;
+import org.nosemaj.pixphony.ble.PixmobConnectionManager;
 import org.nosemaj.pixphony.music.Instruments;
+import org.nosemaj.pixphony.music.SoundPlayer;
 
 /*
  * https://developer.android.com/guide/topics/ui/settings.html#Activity
  */
 public class SettingsActivity extends PreferenceActivity {
+//    private static sConnectionManager = null; 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
         setupListPreferenceListener();
+/*
+        sConnectionManager = 
+            ((PixphonyApplication)getApplicationContext()).getConnectionManager();
+            */
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        /*
+
+        sConnectionManager.startScan();
+        */
+    }
+
+    @Override
+    public void onPause() {
+        /*
+        sConnectionManager.stopScan();
+        */
+
+        super.onPause();
     }
 
     private void setupListPreferenceListener() {

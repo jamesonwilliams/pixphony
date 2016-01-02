@@ -33,14 +33,6 @@ public class PixmobDeviceListener {
         onLog("note played: " + sender.getDeviceName() + ": " + channel + ", " + note + ", " + velocity + ", " + noteOn);
     }
 
-    public void onDeviceConnected(@NonNull MidiInputDevice midiInputDevice) {
-        onLog("device connected: " + midiInputDevice.getDeviceName());
-    }
-
-    public void onDeviceDisconnected(@NonNull MidiInputDevice midiInputDevice) {
-        onLog("device disconnected: " + midiInputDevice.getDeviceName());
-    }
-
     public void onLog(final String text) {
     }
 }

@@ -37,6 +37,7 @@ import jp.kshoji.blemidi.device.MidiInputDevice;
 import jp.kshoji.blemidi.util.BleUtils;
 
 import org.nosemaj.pixphony.ble.PixmobDeviceListener;
+import org.nosemaj.pixphony.ble.BleConnectionListener;
 import org.nosemaj.pixphony.ble.PixmobConnectionManager;
 import org.nosemaj.pixphony.music.Instruments;
 import org.nosemaj.pixphony.music.SoundPlayer;
@@ -51,8 +52,6 @@ public class DebugActivity extends Activity {
 
     private PixmobConnectionManager mConnectionManager = null;
     private SoundPlayer mSoundPlayer = null;
-
-    private boolean mBleInitialized = false;
 
     private ArrayAdapter<String> mEventLogAdapter;
 
@@ -75,7 +74,6 @@ public class DebugActivity extends Activity {
         setupSoundPlayer();
 
         if (checkForBle()) {
-            mBleInitialized = false;
             setupBleMidi();
         }
     }
@@ -87,13 +85,10 @@ public class DebugActivity extends Activity {
 
     private void setupBleMidi() {
         mConnectionManager = ((PixphonyApplication)getApplicationContext()).getConnectionManager();
-
-        if (!mBleInitialized) {
-            mConnectionManager.setListener(mPixmobListener);
-            mConnectionManager.init();
-            mConnectionManager.startScan();
-            mBleInitialized = true;
-        }
+        mConnectionManager.init();
+        mConnectionManager.setPixmobDeviceListener(mPixmobListener);
+        mConnectionManager.setBleConnectionListener(mConnectionListener);
+        mConnectionManager.startScan();
     }
 
     private boolean checkForBle() {
@@ -226,21 +221,24 @@ public class DebugActivity extends Activity {
         }
 
         @Override
-        public void onDeviceConnected(@NonNull MidiInputDevice midiInputDevice) {
-            super.onDeviceConnected(midiInputDevice);
+        public void onLog(String text) {
+            updateListAdapter(text);
+        }
+    };
+
+    BleConnectionListener mConnectionListener = new BleConnectionListener() {
+        @Override
+        public void onMidiInputDeviceAttached(@NonNull MidiInputDevice midiInputDevice) {
+            super.onMidiInputDeviceAttached(midiInputDevice);
             updateDevicesAdapter(midiInputDevice, true);
         }
 
         @Override
-        public void onDeviceDisconnected(@NonNull MidiInputDevice midiInputDevice) {
-            super.onDeviceDisconnected(midiInputDevice);
+        public void onMidiInputDeviceDetached(@NonNull MidiInputDevice midiInputDevice) {
+            super.onMidiInputDeviceDetached(midiInputDevice);
             updateDevicesAdapter(midiInputDevice, false);
         }
 
-        @Override
-        public void onLog(String text) {
-            updateListAdapter(text);
-        }
     };
 
     private void updateListAdapter(final String text) {

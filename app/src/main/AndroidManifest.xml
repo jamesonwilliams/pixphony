@@ -38,6 +38,15 @@
             android:name="org.nosemaj.pixphony.DebugActivity"
             android:launchMode="singleTask">
         </activity>
+        <activity
+            android:name="org.nosemaj.pixphony.BleListActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.BleListActivity" />
+                <category android:name="android.intent.category.PREFERENCE" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="org.nosemaj.pixphony.PianoActivity"

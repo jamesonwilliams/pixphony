@@ -34,6 +34,7 @@ public class PixmobConnectionManager {
     private static final int BLE_SCAN_TIME_MS = 0;
 
     private BleMidiCentralProvider mProvider;
+    private boolean mIsInitialized = false;
 
     private static volatile PixmobConnectionManager sInstance = null;
     private static Context sContext = null;
@@ -53,6 +54,10 @@ public class PixmobConnectionManager {
         return sInstance;
     }
 
+    private boolean isInitialized() {
+        return mIsInitialized;
+    }
+
     public void startScan() {
         Log.d(TAG, "startScan()");
         mProvider.startScanDevice(BLE_SCAN_TIME_MS);
@@ -66,12 +71,18 @@ public class PixmobConnectionManager {
     public void terminiate() {
         Log.d(TAG, "terminate()");
         mProvider.terminate();
+        mIsInitialized = false;
     }
 
-    private PixmobDeviceListener mListener = null;
+    private BleConnectionListener mClientConnectionListener = null;
+    private PixmobDeviceListener mClientDeviceListener = null;
 
-    public void setListener(PixmobDeviceListener l) {
-        mListener = l;
+    public void setBleConnectionListener(BleConnectionListener l) {
+        mClientConnectionListener = l;
+    }
+
+    public void setPixmobDeviceListener(PixmobDeviceListener l) {
+        mClientDeviceListener = l;
     }
 
     BleMidiEventListener mBleMidiEventListener = new BleMidiEventListener() {
@@ -83,8 +94,10 @@ public class PixmobConnectionManager {
                 return;
             }
 
-            if (mListener != null) {
-                mListener.onDevicePlayed(sender, channel, note, velocity, true);
+            if (mClientDeviceListener != null) {
+                mClientDeviceListener.onDevicePlayed(sender, channel, note, velocity, true);
+            } else {
+                Log.d(TAG, "mClientDeviceListener is null.");
             }
         }
 
@@ -96,18 +109,39 @@ public class PixmobConnectionManager {
                 return;
             }
 
-            if (mListener != null) {
-                mListener.onDevicePlayed(sender, channel, note, velocity, false);
+            if (mClientDeviceListener != null) {
+                Log.d(TAG, "dispatching to listener " + mClientDeviceListener.toString());
+                mClientDeviceListener.onDevicePlayed(sender, channel, note, velocity, false);
+            } else {
+                Log.d(TAG, "mClientDeviceListener is null.");
             }
         }
 
         @Override
-        public void onMidiInputDeviceAttached(@NonNull MidiInputDevice midiInputDevice) {
-            super.onMidiInputDeviceAttached(midiInputDevice);
-            midiInputDevice.setOnMidiInputEventListener(this);
+        public void onLog(String text) {
+            Log.d(TAG, text);
+        }
+    };
 
-            if (mListener != null) {
-                mListener.onDeviceConnected(midiInputDevice);
+    BleConnectionListener mBleConnectionListener = new BleConnectionListener() {
+        @Override
+        public void onMidiInputDeviceAttached(@NonNull MidiInputDevice midiInputDevice) {
+            for (MidiInputDevice d : getConnectedDevices()) {
+                if (midiInputDevice.getDeviceAddress().equals(d.getDeviceAddress()) &&
+                        d != midiInputDevice) {
+                    Log.w(TAG, "GOT DUPLICATE DEVICE, DISCONNECTING THE OLD ONE!");
+                    disconnectDevice(d);
+                }
+            }
+
+            super.onMidiInputDeviceAttached(midiInputDevice);
+            midiInputDevice.setOnMidiInputEventListener(mBleMidiEventListener);
+
+            if (mClientConnectionListener != null) {
+                Log.d(TAG, "dispatching to listener " + mClientConnectionListener.toString());
+                mClientConnectionListener.onMidiInputDeviceAttached(midiInputDevice);
+            } else {
+                Log.d(TAG, "mClientConnectionListener is null.");
             }
         }
 
@@ -115,14 +149,12 @@ public class PixmobConnectionManager {
         public void onMidiInputDeviceDetached(@NonNull MidiInputDevice midiInputDevice) {
             super.onMidiInputDeviceDetached(midiInputDevice);
 
-            if (mListener != null) {
-                mListener.onDeviceDisconnected(midiInputDevice);
+            if (mClientConnectionListener != null) {
+                Log.d(TAG, "dispatching to listener " + mClientConnectionListener.toString());
+                mClientConnectionListener.onMidiInputDeviceDetached(midiInputDevice);
+            } else {
+                Log.d(TAG, "mClientConnectionListener is null.");
             }
-        }
-
-        @Override
-        public void onLog(String text) {
-            Log.d(TAG, text);
         }
     };
 
@@ -140,14 +172,18 @@ public class PixmobConnectionManager {
      */
     public void init() {
         Log.d(TAG, "setupCentralProvider()");
-        mProvider = new BleMidiCentralProvider(sContext);
-        attachListeners();
+
+        if (!isInitialized()) {
+            mProvider = new BleMidiCentralProvider(sContext);
+            attachListeners();
+            mIsInitialized = true;
+        }
     }
 
     public void attachListeners() {
         mProvider.setOnMidiScanStatusListener(mScanStatusListener);
-        mProvider.setOnMidiDeviceAttachedListener(mBleMidiEventListener);
-        mProvider.setOnMidiDeviceDetachedListener(mBleMidiEventListener);
+        mProvider.setOnMidiDeviceAttachedListener(mBleConnectionListener);
+        mProvider.setOnMidiDeviceDetachedListener(mBleConnectionListener);
     }
 
     public ArrayList<MidiInputDevice> getConnectedDevices() {

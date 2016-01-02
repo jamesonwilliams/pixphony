@@ -52,8 +52,6 @@ public class PianoActivity extends Activity {
     private PixmobConnectionManager mConnectionManager = null;
     private SoundPlayer mSoundPlayer = null;
 
-    private boolean mBleInitialized = false;
-
     private ArrayList<ImageButton> mWhiteKeys = 
         new ArrayList<ImageButton>();
     private ArrayList<ImageButton> mBlackKeys = 
@@ -82,7 +80,6 @@ public class PianoActivity extends Activity {
         setupButtons();
 
         if (checkForBle()) {
-            mBleInitialized = false;
             setupBleMidi();
         }
     }
@@ -92,6 +89,7 @@ public class PianoActivity extends Activity {
         super.onResume();
         setupSoundPlayer();
         setKeyboardPreferences();
+        mConnectionManager.setPixmobDeviceListener(mPixmobListener);
     }
 
     private void setupSoundPlayer() {
@@ -123,13 +121,7 @@ public class PianoActivity extends Activity {
 
     private void setupBleMidi() {
         mConnectionManager = ((PixphonyApplication)getApplicationContext()).getConnectionManager();
-
-        if (!mBleInitialized) {
-            mConnectionManager.setListener(mPixmobListener);
-            mConnectionManager.init();
-            mConnectionManager.startScan();
-            mBleInitialized = true;
-        }
+        mConnectionManager.init();
     }
 
     private boolean checkForBle() {
